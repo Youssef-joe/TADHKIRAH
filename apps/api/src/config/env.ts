@@ -38,6 +38,15 @@ export const EnvSchema = z
       .enum(['true', 'false'])
       .default('false')
       .transform((v) => v === 'true'),
+    /**
+     * Master key for envelope encryption of reflections (Architecture §7): 32
+     * random bytes, base64 (`openssl rand -base64 32`). KEEP AN OFFLINE COPY:
+     * if it's lost, every reflection becomes unreadable.
+     */
+    MASTER_KEY: z
+      .string()
+      .refine((v) => Buffer.from(v, 'base64').length === 32, 'must be 32 bytes, base64-encoded'),
+    MASTER_KEY_VERSION: z.string().default('v1'),
     /** Shared secret for scheduled jobs (Vercel Cron sends it as `Authorization: Bearer …`). */
     CRON_SECRET: z.string().min(16).optional(),
   })

@@ -8,6 +8,7 @@ import { createApiApp } from '../src/bootstrap.js';
 import { loadEnv } from '../src/config/env.js';
 
 export const TEST_ORIGIN = 'http://localhost:3000';
+export const TEST_MASTER_KEY = Buffer.alloc(32, 42).toString('base64');
 
 export async function startApp(): Promise<{ app: INestApplication; mailer: MemoryMailer }> {
   const env = loadEnv({
@@ -15,6 +16,7 @@ export async function startApp(): Promise<{ app: INestApplication; mailer: Memor
     NODE_ENV: 'test',
     LOG_LEVEL: 'error',
     AUTH_SECRET: 'test-secret-test-secret-test-secret-123',
+    MASTER_KEY: TEST_MASTER_KEY,
     MAIL_TRANSPORT: 'memory',
     WEB_ORIGINS: TEST_ORIGIN,
   });

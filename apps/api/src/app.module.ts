@@ -6,12 +6,14 @@ import { CsrfGuard } from './common/csrf.guard.js';
 import { loggerParams } from './common/logger.js';
 import { ConfigModule } from './config/config.module.js';
 import type { Env } from './config/env.js';
+import { CryptoModule } from './crypto/crypto.module.js';
 import { DbModule } from './db/db.module.js';
 import { HealthModule } from './health/health.module.js';
 import { MaintenanceModule } from './maintenance/maintenance.module.js';
 import { MeModule } from './me/me.module.js';
 import { PrayerModule } from './prayer/prayer.module.js';
 import { QuranModule } from './quran/quran.module.js';
+import { ReflectionModule } from './reflection/reflection.module.js';
 import { WorshipModule } from './worship/worship.module.js';
 
 /** HTTP API (MODE=api). */
@@ -24,12 +26,14 @@ export class AppModule {
         ConfigModule.forRoot(env),
         LoggerModule.forRoot(loggerParams(env)),
         DbModule,
+        CryptoModule,
         HealthModule,
         AuthModule,
         PrayerModule,
         MeModule,
         WorshipModule,
         QuranModule,
+        ReflectionModule,
         MaintenanceModule,
       ],
       providers: [{ provide: APP_GUARD, useClass: CsrfGuard }],

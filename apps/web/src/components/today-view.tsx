@@ -20,6 +20,7 @@ import { Icon } from './ui/icons';
 import { Card } from './ui/primitives';
 import { TodayWorship } from './worship/today-worship';
 import { RevisionHint } from './quran/revision-hint';
+import { IntentionCard, ReflectionCard } from './reflection/today-reflection';
 
 const ORDER = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
 
@@ -160,20 +161,17 @@ export function TodayView() {
         </Card>
       )}
 
+      <IntentionCard />
       <RevisionHint />
       <TodayWorship />
+      <ReflectionCard />
 
       <section aria-labelledby="upcoming">
         <h2 id="upcoming" className="mb-3 text-sm font-medium text-muted">
           {t('upcoming')}
         </h2>
         <ul className="grid gap-3 sm:grid-cols-3">
-          {(
-            [
-              ['reflection', 'reflection'],
-              ['reports', 'reports'],
-            ] as const
-          ).map(([k, icon]) => (
+          {([['reports', 'reports']] as const).map(([k, icon]) => (
             <li key={k}>
               <Link
                 href={`/app/${k}`}

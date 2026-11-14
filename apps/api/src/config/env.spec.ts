@@ -3,6 +3,7 @@ import { loadEnv } from './env.js';
 const base = {
   DATABASE_URL: 'postgres://u:p@localhost:5432/db',
   AUTH_SECRET: 'x'.repeat(32),
+  MASTER_KEY: Buffer.alloc(32, 7).toString('base64'),
 };
 
 describe('loadEnv', () => {
@@ -21,6 +22,10 @@ describe('loadEnv', () => {
     } catch (e) {
       expect(String(e)).not.toContain('secret-password');
     }
+  });
+
+  it('requires a 256-bit MASTER_KEY', () => {
+    expect(() => loadEnv({ ...base, MASTER_KEY: 'c2hvcnQ=' })).toThrow(/MASTER_KEY/);
   });
 
   it('requires a long AUTH_SECRET', () => {

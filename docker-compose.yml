@@ -11,6 +11,8 @@ x-api-env: &api-env
   PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:?set PUBLIC_WEB_URL (e.g. https://your-domain.example)}
   WEB_ORIGINS: ${WEB_ORIGINS:-${PUBLIC_WEB_URL}}
   AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET (openssl rand -base64 48)}
+  # Encryption master key for reflections (openssl rand -base64 32). KEEP AN OFFLINE COPY.
+  MASTER_KEY: ${MASTER_KEY:?set MASTER_KEY (openssl rand -base64 32)}
   SMTP_URL: ${SMTP_URL:?set SMTP_URL (smtp://user:pass@host:587)}
   MAIL_FROM: ${MAIL_FROM:-Tadhkirah <no-reply@example.com>}
   ALLOW_INSECURE_HTTP: ${ALLOW_INSECURE_HTTP:-false}

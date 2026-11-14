@@ -1,0 +1,70 @@
+# Production stack: deploy it as-is with Coolify ("Docker Compose" resource) or
+# on any Docker host. See docs/deploy-coolify.md and ADR-002.
+# Set the variables in Coolify's Environment tab (or in a .env file).
+# Don't publish ports: Coolify's proxy routes your domain to `web` on port 3000.
+
+x-api-env: &api-env
+  NODE_ENV: production
+  DATABASE_URL: postgres://${POSTGRES_USER:-tadhkirah}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-tadhkirah}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  APP_VERSION: ${APP_VERSION:-dev}
+  WEB_ORIGINS: ${WEB_ORIGINS:-http://localhost:3000}
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tadhkirah}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-tadhkirah}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build: { context: ., dockerfile: infra/docker/api.Dockerfile }
+    command: ['node', 'node_modules/@tadhkirah/db/dist/migrate.js']
+    environment: *api-env
+    restart: 'no'
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    build: { context: ., dockerfile: infra/docker/api.Dockerfile }
+    restart: unless-stopped
+    environment:
+      <<: *api-env
+      MODE: api
+      PORT: 4000
+    expose: ['4000']
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    build: { context: ., dockerfile: infra/docker/api.Dockerfile }
+    restart: unless-stopped
+    environment:
+      <<: *api-env
+      MODE: worker
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+      args: { API_INTERNAL_URL: 'http://api:4000' }
+    restart: unless-stopped
+    environment:
+      APP_VERSION: ${APP_VERSION:-dev}
+    expose: ['3000']
+    depends_on:
+      api: { condition: service_healthy }
+
+volumes:
+  pgdata:

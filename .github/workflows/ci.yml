@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm check:rtl
+      - run: pnpm build
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - name: Unit tests (default TZ)
+        run: pnpm test
+      - name: Domain tests under other server timezones
+        run: |
+          TZ=America/Los_Angeles pnpm --filter @tadhkirah/domain test
+          TZ=Pacific/Kiritimati pnpm --filter @tadhkirah/domain test
+      - name: Integration tests (Testcontainers PostgreSQL)
+        run: pnpm test:integration
+
+  images:
+    # Check that both production images build for the free ARM VM (ADR-002) as
+    # well as for amd64. Coolify builds the images it deploys itself.
+    needs: check
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [api, web]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/${{ matrix.image }}.Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: false
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}

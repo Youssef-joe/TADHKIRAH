@@ -1,0 +1,26 @@
+{
+  "name": "@tadhkirah/domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure business rules (no I/O): prayer times, tracking day, Hijri formatting.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "adhan": "^4.4.6"
+  }
+}

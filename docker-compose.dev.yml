@@ -1,0 +1,19 @@
+# Infrastructure for local development (`pnpm infra:up`). The apps run natively with `pnpm dev`.
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: tadhkirah
+      POSTGRES_PASSWORD: tadhkirah
+      POSTGRES_DB: tadhkirah
+    ports: ['5432:5432']
+    volumes: ['pgdata-dev:/var/lib/postgresql']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U tadhkirah']
+      interval: 5s
+      retries: 20
+  mailpit:
+    image: axllent/mailpit:latest
+    ports: ['8025:8025', '1025:1025']
+volumes:
+  pgdata-dev:

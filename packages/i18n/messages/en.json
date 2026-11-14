@@ -1,0 +1,20 @@
+{
+  "app": {
+    "name": "Tadhkirah",
+    "tagline": "Remember, reflect, return, and improve — one day at a time."
+  },
+  "nav": {
+    "today": "Today",
+    "worship": "My Worship",
+    "reflection": "Reflection",
+    "sunnah": "Sunnah",
+    "times": "Supplication Times",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "home": {
+    "privacy": "Your reflections are yours alone. We never show them to anyone or use them for advertising or AI training.",
+    "comingSoon": "Under construction — Phase 1",
+    "switchLanguage": "العربية"
+  }
+}

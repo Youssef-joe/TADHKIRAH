@@ -18,6 +18,7 @@ import { skyAt, PREVIEW } from '@/lib/sky';
 import { SkyScene } from './sky/sky-scene';
 import { Icon } from './ui/icons';
 import { Card } from './ui/primitives';
+import { TodayWorship } from './worship/today-worship';
 
 const ORDER = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
 
@@ -158,9 +159,7 @@ export function TodayView() {
         </Card>
       )}
 
-      <Card>
-        <p className="leading-relaxed">{t('intro')}</p>
-      </Card>
+      <TodayWorship />
 
       <section aria-labelledby="upcoming">
         <h2 id="upcoming" className="mb-3 text-sm font-medium text-muted">
@@ -169,7 +168,6 @@ export function TodayView() {
         <ul className="grid gap-3 sm:grid-cols-3">
           {(
             [
-              ['worship', 'worship'],
               ['reflection', 'reflection'],
               ['reports', 'reports'],
             ] as const

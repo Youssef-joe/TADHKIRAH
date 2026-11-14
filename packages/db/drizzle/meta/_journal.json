@@ -36,6 +36,20 @@
       "when": 1794665644213,
       "tag": "0004_prayer_settings_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794683271856,
+      "tag": "0005_worship",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794683272906,
+      "tag": "0006_worship_rls",
+      "breakpoints": true
     }
   ]
 }

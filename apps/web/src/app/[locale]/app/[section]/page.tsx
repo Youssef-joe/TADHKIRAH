@@ -4,7 +4,6 @@ import { Icon, type IconName } from '@/components/ui/icons';
 
 /** Sections that aren't built yet, with the milestone that delivers each one (docs/06-roadmap.md). */
 const UPCOMING: Record<string, string> = {
-  worship: 'M3',
   reflection: 'M5',
   reports: 'M7',
   sunnah: 'P2',

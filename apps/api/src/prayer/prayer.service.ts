@@ -50,6 +50,22 @@ export class PrayerService {
     };
   }
 
+  /**
+   * The user's current tracking day (ADR-001): from Fajr at their location, or
+   * the 04:00 fallback while no location is set. Call it inside withUser().
+   */
+  async trackingToday(tx: Tx, userId: string, now = new Date()): Promise<LocalDate> {
+    const [profile] = await tx
+      .select({ timezone: userProfiles.timezone })
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
+    const timeZone = profile?.timezone ?? 'Asia/Riyadh';
+    const settings = await this.getSettings(tx, userId);
+    return settings
+      ? trackingDate(now, { kind: 'located', ...toPrayerLocation(settings, timeZone) })
+      : trackingDate(now, { kind: 'unlocated', timeZone });
+  }
+
   private async upsert(tx: Tx, userId: string, s: PrayerSettings): Promise<void> {
     const values = {
       ...s,

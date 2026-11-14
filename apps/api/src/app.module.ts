@@ -11,6 +11,7 @@ import { HealthModule } from './health/health.module.js';
 import { MaintenanceModule } from './maintenance/maintenance.module.js';
 import { MeModule } from './me/me.module.js';
 import { PrayerModule } from './prayer/prayer.module.js';
+import { WorshipModule } from './worship/worship.module.js';
 
 /** HTTP API (MODE=api). */
 @Module({})
@@ -26,6 +27,7 @@ export class AppModule {
         AuthModule,
         PrayerModule,
         MeModule,
+        WorshipModule,
         MaintenanceModule,
       ],
       providers: [{ provide: APP_GUARD, useClass: CsrfGuard }],

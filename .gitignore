@@ -9,3 +9,6 @@ coverage/
 !.env.example
 .DS_Store
 next-env.d.ts
+
+# Planning docs and notes stay local (not published)
+*.md

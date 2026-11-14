@@ -1,6 +1,6 @@
 import { schema, sql, withSystem, type Database } from '@tadhkirah/db';
 
-const { emailTokens, rateLimits, sessions, scheduledReminders, notificationLog } = schema;
+const { emailTokens, rateLimits, sessions, scheduledReminders, notificationLog, users } = schema;
 
 /**
  * Deletes records past their retention period (docs/03-data-model.md §5).
@@ -21,6 +21,11 @@ export async function purgeExpired(db: Database): Promise<Record<string, number>
       sql`coalesce(${sessions.revokedAt}, least(${sessions.expiresAt}, ${sessions.absoluteExpiresAt})) < now() - interval '90 days'`,
     )
     .returning({ id: sessions.id });
+  // Backstop for account deletion: the request hard-deletes at once; this retries any that failed.
+  const deletedUsers = await db
+    .delete(users)
+    .where(sql`${users.status} = 'pending_deletion'`)
+    .returning({ id: users.id });
   // Reminder history: planned rows 30 days after firing, the inbox after 90 days.
   const reminders = await withSystem(db, async (tx) => {
     const sr = await tx
@@ -34,6 +39,7 @@ export async function purgeExpired(db: Database): Promise<Record<string, number>
     return { scheduled: sr.length, inbox: nl.length };
   });
   return {
+    deletedAccounts: deletedUsers.length,
     emailTokens: tokens.length,
     rateLimits: limits.length,
     sessions: oldSessions.length,

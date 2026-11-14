@@ -55,6 +55,8 @@ export function errorKey(err: unknown): string {
       return 'rateLimited';
     case 'auth.email_unavailable':
       return 'emailUnavailable';
+    case 'privacy.confirm_mismatch':
+      return 'confirmMismatch';
     case 'reminders.device_taken':
       return 'deviceTaken';
     case 'validation.failed':

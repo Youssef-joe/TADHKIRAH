@@ -203,7 +203,18 @@
     "revoke": "Sign out",
     "signOut": "Sign out of this device",
     "privacy": "Privacy",
-    "privacyBody": "Exporting your data and deleting your account arrive in milestone 8, in shā' Allāh."
+    "privacyBody": "Your data is yours: export it any time, or delete your account for good.",
+    "exportTitle": "Export your data",
+    "exportHint": "A complete copy, including your reflections decrypted. Keep it somewhere safe.",
+    "exportMd": "Readable text (Markdown)",
+    "exportJson": "Complete data (JSON)",
+    "deleteTitle": "Delete account",
+    "deleteBody": "Your reflections' encryption key is destroyed at once, so no one can read them again, and then all your data is deleted. This can't be undone.",
+    "deleteSuggestExport": "You may want to export your data first.",
+    "deleteStart": "I want to delete my account",
+    "deleteConfirmLabel": "Type your email to confirm: {email}",
+    "deleteButton": "Delete my account permanently",
+    "deleting": "Deleting…"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -213,7 +224,8 @@
     "rateLimited": "Too many attempts. Please wait a little and try again.",
     "emailUnavailable": "We couldn't send the email right now. Please try again shortly.",
     "locationRequired": "Choose a location first.",
-    "deviceTaken": "This browser is linked to another account."
+    "deviceTaken": "This browser is linked to another account.",
+    "confirmMismatch": "That email doesn't match your account."
   },
   "phases": {
     "night": "Night",
@@ -542,5 +554,32 @@
     "snooze": "Remind me in {minutes}",
     "snoozed": "We'll remind you at {time}.",
     "settings": "Reminder settings"
+  },
+  "exportDoc": {
+    "title": "Tadhkirah: a copy of your data",
+    "note": "This copy is yours and includes your reflections, decrypted. Keep it somewhere safe.",
+    "exportedAt": "Exported",
+    "account": "Account",
+    "email": "Email",
+    "since": "Created",
+    "reflections": "Daily reflections",
+    "worship": "Worship log",
+    "excused": "Excused day",
+    "travelling": "Travelling",
+    "quran": "Quran",
+    "recitations": "Recitation",
+    "revisions": "Revision",
+    "memorization": "Memorization",
+    "weekly": "Weekly reviews",
+    "weekOf": "Week of {date}",
+    "goals": "Goals",
+    "customReminders": "Your own reminders",
+    "empty": "Nothing yet.",
+    "done": "Done"
+  },
+  "goodbye": {
+    "title": "Your account has been deleted",
+    "body": "Your data and your reflections' encryption key are gone. May Allah grant you success and acceptance.",
+    "home": "Home page"
   }
 }

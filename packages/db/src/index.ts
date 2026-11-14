@@ -4,7 +4,7 @@ import pg from 'pg';
 import * as schema from './schema/index.js';
 
 export * as schema from './schema/index.js';
-export { and, eq, gt, inArray, isNull, lt, desc, sql } from 'drizzle-orm';
+export { and, asc, eq, gt, inArray, isNull, lt, desc, sql } from 'drizzle-orm';
 
 export type Database = NodePgDatabase<typeof schema>;
 export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];

@@ -11,7 +11,9 @@ export function Button({
   variant = 'primary',
   className,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'ghost' | 'quiet' }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: 'primary' | 'ghost' | 'quiet' | 'danger';
+}) {
   return (
     <button
       {...props}
@@ -20,6 +22,7 @@ export function Button({
         variant === 'primary' && 'bg-primary text-white hover:opacity-90',
         variant === 'ghost' && 'border border-border bg-surface text-text hover:bg-bg',
         variant === 'quiet' && 'text-primary underline-offset-4 hover:underline',
+        variant === 'danger' && 'bg-danger text-white hover:opacity-90',
         className,
       )}
     />

@@ -148,11 +148,15 @@ export class AuthService {
     timeZone?: string,
   ): Promise<VerifiedUser> {
     return this.handle.db.transaction(async (tx) => {
-      const [existing] = await tx
-        .select({ id: users.id })
+      const [found] = await tx
+        .select({ id: users.id, status: users.status })
         .from(users)
         .where(eq(sql`lower(${users.email})`, email))
         .limit(1);
+      // An account whose deletion is still finishing is never signed back into: finish it, start fresh.
+      if (found?.status === 'pending_deletion')
+        await tx.delete(users).where(eq(users.id, found.id));
+      const existing = found?.status === 'active' ? found : undefined;
 
       if (existing) {
         await tx

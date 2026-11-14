@@ -56,6 +56,9 @@ importers:
       '@tadhkirah/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@tadhkirah/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@vercel/functions':
         specifier: ^3.11.3
         version: 3.11.3

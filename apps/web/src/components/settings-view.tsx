@@ -6,6 +6,7 @@ import type { Preferences, Profile, SessionInfo } from '@tadhkirah/contracts';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { api, errorKey } from '@/lib/api';
 import { useMe } from './me-context';
+import { PrivacyCard } from './privacy-card';
 import { PrayerSettingsCard } from './prayer/prayer-settings-card';
 import { RemindersCard } from './reminders/reminders-card';
 import { Button, Card, Field, Input, Select, Status } from './ui/primitives';
@@ -286,9 +287,7 @@ export function SettingsView() {
       </div>
       <PreferencesCard />
       <SessionsCard />
-      <Card title={t('privacy')}>
-        <p className="text-sm text-muted">{t('privacyBody')}</p>
-      </Card>
+      <PrivacyCard />
     </div>
   );
 }

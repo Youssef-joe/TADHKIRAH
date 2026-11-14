@@ -7,3 +7,4 @@ export * from './quran.js';
 export * from './reflection.js';
 export * from './reports.js';
 export * from './reminders.js';
+export * from './privacy.js';

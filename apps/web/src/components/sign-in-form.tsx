@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import type { EmailVerifyResponse } from '@tadhkirah/contracts';
 import { api, errorKey } from '@/lib/api';
 import { Button, Field, Input, Status } from './ui/primitives';
+import { clearUserData } from '@/lib/outbox';
 
 /** Two steps: email → 6-digit code. The emailed magic link is an alternative to the code. */
 export function SignInForm() {
@@ -49,6 +50,7 @@ export function SignInForm() {
         },
       });
       // Full navigation so server components re-read the new session cookie.
+      await clearUserData(); // nothing cached for a previous account survives a new sign-in
       window.location.assign(`/${res.locale}/app/today`);
     } catch (err) {
       setError(te(errorKey(err)));

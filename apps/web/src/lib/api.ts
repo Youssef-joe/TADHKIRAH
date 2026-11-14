@@ -1,4 +1,5 @@
 import { CSRF_HEADER, type Problem } from '@tadhkirah/contracts';
+import { enqueue, isQueueable } from './outbox';
 
 /** An API failure with the stable machine-readable `code` from problem+json. */
 export class ApiError extends Error {
@@ -32,6 +33,19 @@ export async function api<T = void>(
       body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
     });
   } catch {
+    // Offline: worship and reflection writes wait in the outbox (code `queued`); the rest fail.
+    const method = init.method ?? 'GET';
+    if (isQueueable(method, path)) {
+      const queued = await enqueue({
+        path,
+        method,
+        body: init.body as Record<string, unknown> | undefined,
+      }).then(
+        () => true,
+        () => false,
+      );
+      if (queued) throw new ApiError(0, 'queued');
+    }
     throw new ApiError(0, 'network');
   }
   if (res.status === 204 || res.status === 202) return undefined as T;

@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import type { EmailVerifyResponse } from '@tadhkirah/contracts';
 import { Link } from '@/i18n/navigation';
 import { api } from '@/lib/api';
+import { clearUserData } from '@/lib/outbox';
 
 /**
  * Magic-link landing page. The token is in the URL fragment (#token=…), which
@@ -30,7 +31,10 @@ export default function VerifyPage() {
       method: 'POST',
       body: { token, locale, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
     })
-      .then((res) => window.location.replace(`/${res.locale}/app/today`))
+      .then(async (res) => {
+        await clearUserData(); // nothing cached for a previous account survives a new sign-in
+        window.location.replace(`/${res.locale}/app/today`);
+      })
       .catch(() => setFailed(true));
   }, [locale]);
 

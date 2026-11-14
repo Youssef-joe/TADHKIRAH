@@ -92,7 +92,9 @@
   "shell": {
     "greeting": "Assalamu alaikum, {name}",
     "greetingNoName": "Assalamu alaikum",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "offline": "You're offline. What you log is saved on this device and syncs when you're back online.",
+    "syncing": "Changes saved on this device, waiting to sync…"
   },
   "today": {
     "intro": "This is your daily page. Soon you'll find your prayers, adhkar and Quran portion here, and a moment to look back on your day.",
@@ -214,7 +216,11 @@
     "deleteStart": "I want to delete my account",
     "deleteConfirmLabel": "Type your email to confirm: {email}",
     "deleteButton": "Delete my account permanently",
-    "deleting": "Deleting…"
+    "deleting": "Deleting…",
+    "installTitle": "Install the app",
+    "installBody": "Add Tadhkirah to your Home Screen to open it with one tap, use it offline, and receive reminders.",
+    "installButton": "Install",
+    "installIos": "On iPhone: open the site in Safari, tap the Share button, then choose “Add to Home Screen”."
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -442,7 +448,8 @@
     "todayCardDone": "You've completed today's reflection ✓",
     "todayCardCta": "Start reflecting",
     "todayCardContinue": "Continue reflecting",
-    "intentionToday": "Your intention for today"
+    "intentionToday": "Your intention for today",
+    "savedOffline": "Saved on this device; it will sync when you’re online"
   },
   "reports": {
     "title": "Reports",

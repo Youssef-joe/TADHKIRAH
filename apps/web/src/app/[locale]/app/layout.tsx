@@ -2,6 +2,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { AppNav } from '@/components/app-nav';
 import { MeProvider } from '@/components/me-context';
+import { Pwa } from '@/components/pwa';
 import { getMe } from '@/lib/server-api';
 
 /** Everything under /app needs a session. Signed-out visitors go to sign-in. */
@@ -17,6 +18,7 @@ export default async function AppLayout({ children, params }: LayoutProps<'/[loc
       <div className="flex min-h-dvh">
         <AppNav />
         <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-8 pb-24 sm:px-6 md:pb-12">
+          <Pwa />
           {children}
         </main>
       </div>

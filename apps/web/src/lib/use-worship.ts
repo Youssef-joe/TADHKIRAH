@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ActivityDto, DayFlagsDto, LogDto, LogsResponse, PrayerStatus } from './worship-types';
-import { api } from './api';
+import { api, ApiError } from './api';
+import { pending, type OutboxItem } from './outbox';
 
 export type LogValue = { prayerStatus: PrayerStatus } | { done: boolean } | { amount: number };
 
@@ -48,14 +49,17 @@ export function useWorship(from: string | null, to: string | null) {
         const start = shift(res.today, -res.backfillDays);
         res = await api<LogsResponse>(`/worship/logs?from=${start}&to=${res.today}`);
       }
+      const logs = new Map(res.logs.map((l) => [logKey(l.localDate, l.activityId), l]));
+      const flags = new Map(res.flags.map(({ localDate, ...f }) => [localDate, f]));
+      applyPending(await pending().catch(() => []), logs, flags);
       setState({
         loading: false,
         error: false,
         today: res.today,
         backfillDays: res.backfillDays,
         activities,
-        logs: new Map(res.logs.map((l) => [logKey(l.localDate, l.activityId), l])),
-        flags: new Map(res.flags.map(({ localDate, ...f }) => [localDate, f])),
+        logs,
+        flags,
       });
     } catch {
       setState((s) => ({ ...s, loading: false, error: true }));
@@ -97,7 +101,9 @@ export function useWorship(from: string | null, to: string | null) {
         await api(`/worship/logs/${date}/${activityId}`, { method: 'DELETE' });
       }
       setSaveError(false);
-    } catch {
+    } catch (err) {
+      // Offline: the write waits in the outbox, so the screen keeps showing it.
+      if (err instanceof ApiError && err.code === 'queued') return setSaveError(false);
       setSaveError(true);
       setState((s) => {
         const logs = new Map(s.logs);
@@ -114,7 +120,8 @@ export function useWorship(from: string | null, to: string | null) {
     try {
       await api(`/worship/day-flags/${date}`, { method: 'PUT', body: flags });
       setSaveError(false);
-    } catch {
+    } catch (err) {
+      if (err instanceof ApiError && err.code === 'queued') return setSaveError(false);
       setSaveError(true);
       setState((s) => {
         const map = new Map(s.flags);
@@ -132,6 +139,35 @@ export function useWorship(from: string | null, to: string | null) {
   );
 
   return { ...state, saveError, setLog, setFlags, setActivities, reload: load };
+}
+
+/** Shows writes still waiting in the offline outbox on top of the (possibly cached) server data. */
+function applyPending(
+  items: OutboxItem[],
+  logs: Map<string, LogDto>,
+  flags: Map<string, DayFlagsDto>,
+) {
+  for (const item of items) {
+    const log = /^\/worship\/logs\/(\d{4}-\d{2}-\d{2})\/([0-9a-f-]{36})$/.exec(item.path);
+    if (log) {
+      const [, localDate, activityId] = log as unknown as [string, string, string];
+      const b = item.body ?? {};
+      if (item.method === 'DELETE') logs.delete(logKey(localDate, activityId));
+      else
+        logs.set(logKey(localDate, activityId), {
+          id: String(b.id),
+          activityId,
+          localDate,
+          prayerStatus: (b.prayerStatus as PrayerStatus | undefined) ?? null,
+          done: (b.done as boolean | undefined) ?? null,
+          amount: (b.amount as number | undefined) ?? null,
+          clientUpdatedAt: String(b.clientUpdatedAt),
+        });
+      continue;
+    }
+    const flag = /^\/worship\/day-flags\/(\d{4}-\d{2}-\d{2})$/.exec(item.path);
+    if (flag && item.body) flags.set(flag[1]!, item.body as unknown as DayFlagsDto);
+  }
 }
 
 /** Shift a YYYY-MM-DD date by n days (UTC arithmetic, no timezone involved). */

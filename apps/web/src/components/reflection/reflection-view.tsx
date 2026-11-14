@@ -10,6 +10,7 @@ import type {
 import { formatHijri } from '@tadhkirah/domain';
 import { Link } from '@/i18n/navigation';
 import { api, ApiError } from '@/lib/api';
+import { pending } from '@/lib/outbox';
 import { shift } from '@/lib/use-worship';
 import { useMe } from '../me-context';
 import { GeometricPattern } from '../ui/art';
@@ -26,7 +27,7 @@ interface Form {
   intention: string;
   freeText: string;
 }
-type SaveState = 'idle' | 'saving' | 'saved' | 'error' | 'conflict';
+type SaveState = 'idle' | 'saving' | 'saved' | 'offline' | 'error' | 'conflict';
 
 const CHOICES: Choice[] = ['yes', 'partly', 'no'];
 const textarea =
@@ -127,8 +128,17 @@ export function ReflectionView() {
     const res = await api<ReflectionDayResponse>(
       `/reflections/${target === 'today' ? probe : target}`,
     );
-    setData(res);
-    setForm(toForm(res.reflection, res.suggestions));
+    // A save made offline and not yet sent wins over the (possibly cached) server copy.
+    const day = target === 'today' ? probe : target;
+    const queued = (await pending().catch(() => [])).find((i) => i.path === `/reflections/${day}`);
+    const reflection = queued?.body
+      ? ({
+          ...(res.reflection ?? { localDate: day, version: 0, completedAt: null }),
+          ...(queued.body as Partial<ReflectionDto>),
+        } as ReflectionDto)
+      : res.reflection;
+    setData({ ...res, reflection });
+    setForm(toForm(reflection, res.suggestions));
     version.current = res.reflection?.version;
     setState('idle');
   }, []);
@@ -164,7 +174,10 @@ export function ReflectionView() {
         setState('saved');
         if (complete) setClosing(true);
       } catch (err) {
-        if (err instanceof ApiError && err.code === 'reflection.version_conflict') {
+        if (err instanceof ApiError && err.code === 'queued') {
+          setState('offline');
+          if (complete) setClosing(true);
+        } else if (err instanceof ApiError && err.code === 'reflection.version_conflict') {
           setState('conflict');
           await load(date);
           setState('conflict');
@@ -432,6 +445,7 @@ export function ReflectionView() {
               <Icon name="lock" size={14} className="text-primary" /> {t('saved')}
             </>
           )}
+          {state === 'offline' && <span>{t('savedOffline')}</span>}
           {state === 'error' && <span className="text-danger">{t('saveError')}</span>}
           {state === 'conflict' && <span className="text-accent">{t('conflict')}</span>}
         </span>

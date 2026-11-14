@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تَذْكِرَة</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #faf6ee;
+        --text: #1d2a26;
+        --muted: #5f6b66;
+        --primary: #0f5d4a;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1a17;
+          --text: #e9efe9;
+          --muted: #9fb0a8;
+          --primary: #3fa388;
+        }
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        background: var(--bg);
+        color: var(--text);
+        font-family: system-ui, 'Segoe UI', Tahoma, sans-serif;
+        text-align: center;
+        padding: 16px;
+        box-sizing: border-box;
+      }
+      main {
+        max-width: 28rem;
+      }
+      img {
+        width: 64px;
+        height: 64px;
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin: 1rem 0 0.5rem;
+      }
+      p {
+        color: var(--muted);
+        line-height: 1.7;
+        margin: 0.25rem 0;
+      }
+      button {
+        margin-top: 1.25rem;
+        min-height: 44px;
+        padding: 0 1.25rem;
+        border: 0;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #fff;
+        font: inherit;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/icon-192.png" alt="" />
+      <h1>لَا يُوجَدُ اتِّصَال</h1>
+      <p>افْتَحْ صَفْحَةَ الْيَوْمِ مَرَّةً وَأَنْتَ مُتَّصِلٌ لِتَعْمَلَ بِدُونِ إِنْتَرْنِتْ.</p>
+      <p dir="ltr" lang="en">You're offline. Open Today once while online to use it offline.</p>
+      <button type="button" onclick="location.reload()">أَعِدِ الْمُحَاوَلَة · Retry</button>
+    </main>
+  </body>
+</html>

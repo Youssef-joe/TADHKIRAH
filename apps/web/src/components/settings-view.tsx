@@ -6,10 +6,12 @@ import type { Preferences, Profile, SessionInfo } from '@tadhkirah/contracts';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { api, errorKey } from '@/lib/api';
 import { useMe } from './me-context';
+import { InstallCard } from './install-card';
 import { PrivacyCard } from './privacy-card';
 import { PrayerSettingsCard } from './prayer/prayer-settings-card';
 import { RemindersCard } from './reminders/reminders-card';
 import { Button, Card, Field, Input, Select, Status } from './ui/primitives';
+import { clearUserData } from '@/lib/outbox';
 
 type SaveState = { tone: 'ok' | 'error'; text: string } | null;
 
@@ -239,6 +241,7 @@ function SessionsCard() {
 
   async function signOut() {
     await api('/auth/logout', { method: 'POST' }).catch(() => undefined);
+    await clearUserData();
     window.location.assign(`/${locale}`);
   }
 
@@ -287,6 +290,7 @@ export function SettingsView() {
       </div>
       <PreferencesCard />
       <SessionsCard />
+      <InstallCard />
       <PrivacyCard />
     </div>
   );

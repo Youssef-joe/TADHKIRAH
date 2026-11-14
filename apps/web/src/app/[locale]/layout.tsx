@@ -32,7 +32,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'app' });
-  return { title: t('name'), description: t('tagline') };
+  return {
+    title: t('name'),
+    description: t('tagline'),
+    manifest: '/manifest.webmanifest',
+    icons: { icon: '/icon.svg', apple: '/apple-touch-icon.png' },
+    appleWebApp: { capable: true, title: t('name'), statusBarStyle: 'default' },
+  };
 }
 
 export const viewport: Viewport = {

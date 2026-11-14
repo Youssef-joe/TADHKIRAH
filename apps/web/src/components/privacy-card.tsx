@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { api, errorKey } from '@/lib/api';
 import { useMe } from './me-context';
 import { Button, Card, Field, Input, Status } from './ui/primitives';
+import { clearUserData } from '@/lib/outbox';
 
 /** Export (ACC-5) and account deletion (ACC-6). */
 export function PrivacyCard() {
@@ -24,6 +25,7 @@ export function PrivacyCard() {
     setError(null);
     try {
       await api('/me/delete', { method: 'POST', body: { confirmEmail: confirm } });
+      await clearUserData();
       window.location.assign(`/${locale}/goodbye`);
     } catch (err) {
       setError(te(errorKey(err)));

@@ -1,12 +1,13 @@
 import { defineConfig } from 'vitest/config';
 
-/** Needs Docker: starts a real PostgreSQL with Testcontainers. */
+/** Needs Docker: one real PostgreSQL 18 (Testcontainers) shared by every file. */
 export default defineConfig({
   test: {
     globals: true,
     include: ['test/**/*.int-spec.ts'],
-    testTimeout: 120_000,
-    hookTimeout: 180_000,
+    globalSetup: ['test/global-setup.ts'],
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
     fileParallelism: false,
   },
 });

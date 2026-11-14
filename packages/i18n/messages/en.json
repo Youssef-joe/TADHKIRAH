@@ -4,17 +4,99 @@
     "tagline": "Remember, reflect, return, and improve — one day at a time."
   },
   "nav": {
+    "label": "Main navigation",
     "today": "Today",
     "worship": "My Worship",
     "reflection": "Reflection",
     "sunnah": "Sunnah",
     "times": "Supplication Times",
     "reports": "Reports",
-    "settings": "Settings"
+    "settings": "Settings",
+    "more": "More"
   },
   "home": {
     "privacy": "Your reflections are yours alone. We never show them to anyone or use them for advertising or AI training.",
-    "comingSoon": "Under construction — Phase 1",
+    "start": "Get started",
+    "openApp": "Open the app",
     "switchLanguage": "العربية"
+  },
+  "auth": {
+    "title": "Sign in to Tadhkirah",
+    "subtitle": "No password needed. We'll email you a code and a sign-in link.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "name@example.com",
+    "sendCode": "Send sign-in code",
+    "sending": "Sending…",
+    "codeSent": "We sent a 6-digit code to <email></email>",
+    "codeLabel": "Sign-in code",
+    "verify": "Sign in",
+    "verifying": "Checking…",
+    "resend": "Resend code",
+    "resent": "A new code is on its way.",
+    "changeEmail": "Use a different email",
+    "checkSpam": "Can't find it? Check your spam folder, or tap the link in the email.",
+    "privacyNote": "We only ask for your email, and never share it."
+  },
+  "verify": {
+    "verifying": "Signing you in…",
+    "failed": "This link is invalid or has expired.",
+    "backToSignIn": "Back to sign in"
+  },
+  "shell": {
+    "greeting": "Assalamu alaikum, {name}",
+    "greetingNoName": "Assalamu alaikum",
+    "signOut": "Sign out"
+  },
+  "today": {
+    "intro": "This is your daily page. Soon you'll find your prayers, adhkar and Quran portion here, and a moment to look back on your day.",
+    "dayStartsAtFajr": "Your day in Tadhkirah starts at Fajr.",
+    "setLocation": "Set your location in Settings so your day starts at Fajr in your city exactly.",
+    "upcoming": "Coming soon"
+  },
+  "comingSoon": {
+    "title": "Under construction",
+    "body": "This section arrives in milestone {milestone}, in shā' Allāh."
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "displayName": "Name (optional)",
+    "displayNameHint": "Only used in the greeting.",
+    "language": "Language",
+    "digits": "Numerals",
+    "digitsArab": "Arabic-Indic (١٢٣)",
+    "digitsLatn": "Western (123)",
+    "timezone": "Time zone",
+    "useDeviceTimezone": "Use this device's time zone ({tz})",
+    "preferences": "Preferences",
+    "weekStart": "Week starts on",
+    "hijriOffset": "Hijri date adjustment",
+    "hijriOffsetHint": "If the moon sighting in your country differs from the Umm al-Qura calendar.",
+    "days": "{n, plural, one {# day} other {# days}}",
+    "theme": "Appearance",
+    "themeSystem": "Match device",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "sessions": "Signed-in devices",
+    "sessionsHint": "Devices where you're signed in. Sign out any device you don't recognise.",
+    "thisDevice": "This device",
+    "unknownDevice": "Unknown device",
+    "lastActive": "Last active {date}",
+    "revoke": "Sign out",
+    "signOut": "Sign out of this device",
+    "privacy": "Privacy",
+    "privacyBody": "Exporting your data and deleting your account arrive in milestone 8, in shā' Allāh.",
+    "noAdjustment": "No adjustment"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Couldn't connect. Check your internet and try again.",
+    "invalidEmail": "Enter a valid email address.",
+    "invalidCode": "That code is incorrect or has expired.",
+    "rateLimited": "Too many attempts. Please wait a little and try again.",
+    "emailUnavailable": "We couldn't send the email right now. Please try again shortly."
   }
 }

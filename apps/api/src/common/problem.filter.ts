@@ -51,7 +51,12 @@ export class ProblemFilter implements ExceptionFilter {
       code: typeof custom.code === 'string' ? custom.code : (CODE_BY_STATUS[status] ?? 'internal'),
       detail: status < 500 && typeof custom.message === 'string' ? custom.message : undefined,
       instance: req.originalUrl,
+      ...(custom.errors && typeof custom.errors === 'object'
+        ? { errors: custom.errors as Problem['errors'] }
+        : {}),
     };
+    if (typeof custom.retryAfter === 'number')
+      res.setHeader('Retry-After', String(custom.retryAfter));
     res.status(status).type('application/problem+json').json(problem);
   }
 }

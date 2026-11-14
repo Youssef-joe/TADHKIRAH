@@ -17,7 +17,9 @@ export function TodayDate() {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const day = trackingDate(new Date(), { kind: 'unlocated', timeZone });
     const { year, month, day: d } = parseLocalDate(day);
-    const gregorian = new Intl.DateTimeFormat(locale, {
+    // Same numbering system as the Hijri date (newer ICU defaults `ar` to Latin digits).
+    const nu = locale === 'ar' ? 'arab' : 'latn';
+    const gregorian = new Intl.DateTimeFormat(`${locale}-u-nu-${nu}`, {
       timeZone: 'UTC',
       weekday: 'long',
       day: 'numeric',

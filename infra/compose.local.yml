@@ -1,5 +1,9 @@
-# Run the production images locally:
-#   POSTGRES_PASSWORD=local docker compose -f docker-compose.yml -f infra/compose.local.yml up --build
+# Run the production images locally, over http, with Mailpit catching emails:
+#   docker compose --env-file infra/local.env -f docker-compose.yml -f infra/compose.local.yml up --build
+#   app → http://localhost:3000 · emails → http://localhost:8025
 services:
   web:
     ports: ['3000:3000']
+  mailpit:
+    image: axllent/mailpit:latest
+    ports: ['8025:8025']

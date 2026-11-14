@@ -8,7 +8,12 @@ x-api-env: &api-env
   DATABASE_URL: postgres://${POSTGRES_USER:-tadhkirah}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-tadhkirah}
   LOG_LEVEL: ${LOG_LEVEL:-info}
   APP_VERSION: ${APP_VERSION:-dev}
-  WEB_ORIGINS: ${WEB_ORIGINS:-http://localhost:3000}
+  PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:?set PUBLIC_WEB_URL (e.g. https://your-domain.example)}
+  WEB_ORIGINS: ${WEB_ORIGINS:-${PUBLIC_WEB_URL}}
+  AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET (openssl rand -base64 48)}
+  SMTP_URL: ${SMTP_URL:?set SMTP_URL (smtp://user:pass@host:587)}
+  MAIL_FROM: ${MAIL_FROM:-Tadhkirah <no-reply@example.com>}
+  ALLOW_INSECURE_HTTP: ${ALLOW_INSECURE_HTTP:-false}
 
 services:
   postgres:
@@ -62,6 +67,8 @@ services:
     restart: unless-stopped
     environment:
       APP_VERSION: ${APP_VERSION:-dev}
+      # Server components call the API directly to check the session.
+      API_INTERNAL_URL: http://api:4000
     expose: ['3000']
     depends_on:
       api: { condition: service_healthy }

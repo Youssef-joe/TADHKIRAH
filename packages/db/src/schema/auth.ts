@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   index,
   integer,
+  primaryKey,
   pgSchema,
   text,
   timestamp,
@@ -80,4 +81,18 @@ export const sessions = auth.table(
     createdAt: timestamps.createdAt,
   },
   (t) => [index('sessions_user_idx').on(t.userId)],
+);
+
+/**
+ * Fixed-window rate-limit counters, stored in Postgres so limits survive restarts
+ * and are shared by every API instance. Old windows are purged by the worker.
+ */
+export const rateLimits = auth.table(
+  'rate_limits',
+  {
+    key: text('key').notNull(),
+    windowStart: timestamp('window_start', { withTimezone: true }).notNull(),
+    count: integer('count').notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.key, t.windowStart] })],
 );

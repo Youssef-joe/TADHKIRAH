@@ -8,6 +8,20 @@
       "when": 1794658097313,
       "tag": "0000_auth_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794661475530,
+      "tag": "0001_app_profiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794661476594,
+      "tag": "0002_app_rls",
+      "breakpoints": true
     }
   ]
 }

@@ -4,6 +4,7 @@ import { Amiri, IBM_Plex_Sans_Arabic, Inter } from 'next/font/google';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { dir } from '@tadhkirah/i18n';
+import { PrivateAnalytics } from '@/components/analytics';
 import { routing } from '@/i18n/routing';
 import '../globals.css';
 
@@ -56,6 +57,8 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
     >
       <body className="min-h-dvh bg-bg font-sans text-text antialiased">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        {/* Vercel only: self-hosted deployments have no /_vercel/insights endpoint. */}
+        {process.env.VERCEL && <PrivateAnalytics />}
       </body>
     </html>
   );

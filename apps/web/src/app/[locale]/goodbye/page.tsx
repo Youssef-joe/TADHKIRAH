@@ -1,6 +1,9 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
+/** Rendered per request so its scripts carry the CSP nonce (see src/proxy.ts). */
+export const dynamic = 'force-dynamic';
+
 /** Shown once after account deletion. */
 export default async function GoodbyePage({ params }: PageProps<'/[locale]/goodbye'>) {
   const { locale } = await params;

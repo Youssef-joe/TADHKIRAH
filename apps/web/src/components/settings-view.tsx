@@ -42,7 +42,9 @@ function ProfileCard() {
   const pathname = usePathname();
   const [form, setForm] = useState<Profile>(me.profile);
   const { busy, status, run } = useSaver();
-  const deviceTz = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
+  // Read in the browser only: the server's time zone would differ and break hydration.
+  const [deviceTz, setDeviceTz] = useState<string | null>(null);
+  useEffect(() => setDeviceTz(Intl.DateTimeFormat().resolvedOptions().timeZone), []);
   const zones = useMemo(() => {
     const all = Intl.supportedValuesOf('timeZone');
     return all.includes(form.timezone) ? all : [form.timezone, ...all];
@@ -109,7 +111,7 @@ function ProfileCard() {
             ))}
           </Select>
         </Field>
-        {deviceTz !== form.timezone && (
+        {deviceTz && deviceTz !== form.timezone && (
           <Button
             type="button"
             variant="quiet"

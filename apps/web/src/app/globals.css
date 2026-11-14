@@ -11,7 +11,7 @@
   --text: #1e2a26;
   --muted: #5e6b66;
   --primary: #0f5d4a;
-  --accent: #b08d3c;
+  --accent: #86671f; /* darkened from #b08d3c for WCAG AA text contrast */
   --border: #e6dfd0;
   --excused: #b9b4a8;
   --danger: #9a4a2f; /* muted terracotta, only for system errors (never for tracking) */

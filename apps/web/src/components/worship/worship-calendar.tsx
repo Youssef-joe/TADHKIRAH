@@ -15,8 +15,9 @@ const CELL: Record<DayState, string> = {
   partial: 'bg-primary/35 text-text',
   not_logged: 'border border-border text-muted',
   excused: 'bg-excused/40 text-text',
-  not_scheduled: 'text-muted/50',
-  future: 'text-muted/40',
+  // Readable numbers (WCAG AA); the state shows through the outline, not faded text.
+  not_scheduled: 'text-muted',
+  future: 'border border-dashed border-border text-muted',
 };
 
 function monthBounds(ym: string): { from: string; to: string; days: number } {

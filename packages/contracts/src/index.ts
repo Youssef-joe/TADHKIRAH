@@ -1,3 +1,6 @@
+// Must stay first: configures zod before any schema below is built.
+import './csp.js';
+
 export * from './common.js';
 export * from './auth.js';
 export * from './me.js';

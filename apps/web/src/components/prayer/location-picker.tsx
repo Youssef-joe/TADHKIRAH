@@ -104,7 +104,7 @@ export function LocationPicker({
           placeholder={t('searchPlaceholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          aria-controls="city-results"
+          aria-controls={query ? 'city-results' : undefined}
         />
       </Field>
       {query && (

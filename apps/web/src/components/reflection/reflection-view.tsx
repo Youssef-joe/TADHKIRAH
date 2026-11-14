@@ -340,6 +340,7 @@ export function ReflectionView() {
               )}
               {q.answerType !== 'yes_partly_no' && (
                 <textarea
+                  aria-label={qText(q)}
                   rows={q.answerType === 'text' ? 3 : 2}
                   className={`${textarea} ${q.answerType === 'both' ? 'mt-3' : ''}`}
                   placeholder={
@@ -362,13 +363,14 @@ export function ReflectionView() {
 
       {/* Gratitude */}
       <section className="rounded-2xl border border-border bg-surface p-5">
-        <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
+        <h2 id="ref-gratitude" className="mb-3 flex items-center gap-2 text-lg font-semibold">
           <Icon name="heart" className="text-accent" /> {t('gratitude')}
         </h2>
         <div className="grid gap-2 sm:grid-cols-3">
           {form.gratitude.map((g, i) => (
             <input
               key={i}
+              aria-labelledby="ref-gratitude"
               className={textarea}
               maxLength={300}
               placeholder={t('gratitudePlaceholder', {
@@ -389,11 +391,15 @@ export function ReflectionView() {
 
       {/* Returning */}
       <section className="rounded-2xl border border-border bg-surface p-5">
-        <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold">
+        <h2 id="ref-shortcoming" className="mb-1 flex items-center gap-2 text-lg font-semibold">
           <Icon name="today" className="text-primary" /> {t('shortcoming')}
         </h2>
-        <p className="mb-3 text-sm text-muted">{t('shortcomingHint')}</p>
+        <p id="ref-shortcoming-hint" className="mb-3 text-sm text-muted">
+          {t('shortcomingHint')}
+        </p>
         <textarea
+          aria-labelledby="ref-shortcoming"
+          aria-describedby="ref-shortcoming-hint"
           rows={3}
           className={textarea}
           maxLength={2000}
@@ -413,18 +419,25 @@ export function ReflectionView() {
 
       {/* Intention + free text */}
       <section className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
-        <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-primary">
+        <h2
+          id="ref-intention"
+          className="mb-3 flex items-center gap-2 text-lg font-semibold text-primary"
+        >
           <Icon name="sunnah" /> {t('intention')}
         </h2>
         <input
+          aria-labelledby="ref-intention"
           className={textarea}
           maxLength={300}
           placeholder={t('intentionPlaceholder')}
           value={form.intention}
           onChange={(e) => update({ intention: e.target.value })}
         />
-        <h3 className="mt-5 mb-2 text-sm font-medium text-muted">{t('freeText')}</h3>
+        <h3 id="ref-freetext" className="mt-5 mb-2 text-sm font-medium text-muted">
+          {t('freeText')}
+        </h3>
         <textarea
+          aria-labelledby="ref-freetext"
           rows={4}
           className={textarea}
           maxLength={5000}

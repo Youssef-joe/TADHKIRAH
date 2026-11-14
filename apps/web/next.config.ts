@@ -6,7 +6,8 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const config: NextConfig = {
   // Self-contained server output for a small Docker image (ADR-002).
-  output: 'standalone',
+  // (Vercel builds Next.js natively, so standalone output is only for the Docker image.)
+  output: process.env.VERCEL ? undefined : 'standalone',
   outputFileTracingRoot: fileURLToPath(new URL('../../', import.meta.url)),
   poweredByHeader: false,
   // Same-origin API: the browser calls /v1/*, and the web server forwards it to the

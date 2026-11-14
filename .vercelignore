@@ -1,0 +1,5 @@
+# Keep planning docs local (see .gitignore)
+*.md
+docs/
+.env
+.env.*

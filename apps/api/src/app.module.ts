@@ -8,6 +8,7 @@ import { ConfigModule } from './config/config.module.js';
 import type { Env } from './config/env.js';
 import { DbModule } from './db/db.module.js';
 import { HealthModule } from './health/health.module.js';
+import { MaintenanceModule } from './maintenance/maintenance.module.js';
 import { MeModule } from './me/me.module.js';
 import { PrayerModule } from './prayer/prayer.module.js';
 
@@ -25,6 +26,7 @@ export class AppModule {
         AuthModule,
         PrayerModule,
         MeModule,
+        MaintenanceModule,
       ],
       providers: [{ provide: APP_GUARD, useClass: CsrfGuard }],
     };

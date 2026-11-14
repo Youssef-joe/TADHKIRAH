@@ -49,3 +49,45 @@ describe('loadEnv', () => {
     ).toBe(true);
   });
 });
+
+describe('withPlatformDefaults (Vercel)', () => {
+  const vercel = {
+    ...base,
+    VERCEL: '1',
+    VERCEL_ENV: 'production',
+    VERCEL_PROJECT_PRODUCTION_URL: 'tadhkirah.example',
+    VERCEL_URL: 'tadhkirah-abc123.vercel.app',
+    VERCEL_BRANCH_URL: 'tadhkirah-git-main.vercel.app',
+    NODE_ENV: 'production',
+    RESEND_API_KEY: 're_test',
+  };
+
+  it('derives URLs, origins, proxy trust and pool size from Vercel variables', () => {
+    const env = loadEnv(vercel);
+    expect(env.PUBLIC_WEB_URL).toBe('https://tadhkirah.example');
+    expect(env.WEB_ORIGINS).toEqual([
+      'https://tadhkirah.example',
+      'https://tadhkirah-abc123.vercel.app',
+      'https://tadhkirah-git-main.vercel.app',
+    ]);
+    expect(env.TRUST_PROXY).toBe('true');
+    expect(env.DATABASE_POOL_MAX).toBe(3);
+  });
+
+  it('points previews at their own URL and uses Resend over SMTP', () => {
+    const env = loadEnv({ ...vercel, VERCEL_ENV: 'preview' });
+    expect(env.PUBLIC_WEB_URL).toBe('https://tadhkirah-git-main.vercel.app');
+    expect(env.SMTP_URL).toBe('smtps://resend:re_test@smtp.resend.com:465');
+    expect(env.MAIL_FROM).toContain('onboarding@resend.dev');
+  });
+
+  it('never overrides explicit settings', () => {
+    const env = loadEnv({
+      ...vercel,
+      PUBLIC_WEB_URL: 'https://custom.example',
+      SMTP_URL: 'smtp://x:1',
+    });
+    expect(env.PUBLIC_WEB_URL).toBe('https://custom.example');
+    expect(env.SMTP_URL).toBe('smtp://x:1');
+  });
+});

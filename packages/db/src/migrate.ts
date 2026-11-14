@@ -1,12 +1,24 @@
 /**
- * Applies pending migrations, then exits. In production it runs as the one-shot
- * `migrate` service in docker-compose, before `api` and `worker` start (ADR-002).
+ * Applies pending migrations, then exits.
+ *  - Docker/Coolify: runs as the one-shot `migrate` service before `api` and `worker` start.
+ *  - Vercel: runs in the API build, only for production deployments. Previews
+ *    share the production database for now, so they must never migrate it.
+ * Uses the direct (unpooled) connection when one is available, because
+ * migrations shouldn't go through a transaction pooler.
  */
 import { fileURLToPath } from 'node:url';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { createDb } from './index.js';
 
-const url = process.env.DATABASE_URL;
+if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production') {
+  console.log(`skipping migrations for a ${process.env.VERCEL_ENV} deployment`);
+  process.exit(0);
+}
+
+const url =
+  process.env.MIGRATION_DATABASE_URL ??
+  process.env.DATABASE_URL_UNPOOLED ??
+  process.env.DATABASE_URL;
 if (!url) {
   console.error('DATABASE_URL is required');
   process.exit(1);

@@ -14,7 +14,7 @@ export async function createApiApp(env: Env): Promise<INestApplication> {
   });
   app.useLogger(app.get(Logger));
   // Correct client IPs behind Traefik and the Next.js proxy (used by rate limits).
-  app.set('trust proxy', env.TRUST_PROXY);
+  app.set('trust proxy', env.TRUST_PROXY === 'true' ? true : env.TRUST_PROXY);
   app.disable('x-powered-by');
   app.useBodyParser('json', { limit: '100kb' });
   app.setGlobalPrefix(API_VERSION, {

@@ -14,7 +14,8 @@ import {
 import { Link } from '@/i18n/navigation';
 import { formatDuration, timeFormatter } from '@/lib/format';
 import { useMe } from './me-context';
-import { GeometricPattern } from './ui/art';
+import { skyAt, PREVIEW } from '@/lib/sky';
+import { SkyScene } from './sky/sky-scene';
 import { Icon } from './ui/icons';
 import { Card } from './ui/primitives';
 
@@ -51,8 +52,9 @@ export function TodayView() {
     const loc = toPrayerLocation(me.prayerSettings, timezone);
     const day = trackingDate(now, { kind: 'located', ...loc });
     const times = computePrayerTimes(day, loc);
-    const next = nextPrayer(times, computePrayerTimes(addDays(day, 1), loc), now);
-    return { day, times, next };
+    const tomorrow = computePrayerTimes(addDays(day, 1), loc);
+    const next = nextPrayer(times, tomorrow, now);
+    return { day, times, next, sky: skyAt(now, times, tomorrow) };
   }, [now, me.prayerSettings, timezone]);
 
   const fmt = timeFormatter(locale, digits, timezone);
@@ -72,10 +74,15 @@ export function TodayView() {
   return (
     <div className="flex flex-col gap-6">
       <header className="relative overflow-hidden rounded-2xl bg-[#0b2a24] p-6 text-[#f3e3bd]">
-        <GeometricPattern
-          id="today-pattern"
-          className="absolute inset-0 text-[#b08d3c]"
-          opacity={0.14}
+        {/* The sky over your city right now (it follows your prayer times). */}
+        <SkyScene
+          state={data?.sky ?? PREVIEW.night}
+          id="today-sky"
+          className="absolute inset-0 h-full w-full"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/55 to-black/20"
         />
         <div className="relative flex flex-col gap-1">
           <h1 className="font-display text-3xl font-bold text-white">

@@ -49,7 +49,21 @@
     "ctaBody": "Two minutes to set up, then one day at a time, in shā' Allāh.",
     "footer": "Made with care to help you do good.",
     "mockNext": "Next prayer",
-    "mockReflect": "A moment to look back on your day"
+    "mockReflect": "A moment to look back on your day",
+    "skyLive": "Now in Makkah: {phase}",
+    "skyNow": "Now",
+    "skyHint": "Tap a time to see its sky",
+    "timelineTitle": "A day with Tadhkirah",
+    "t1Title": "An intention for your day",
+    "t1Body": "Begin with the intention you wrote last night.",
+    "t2Title": "Prayers in one tap",
+    "t2Body": "Log each prayer at its time with a single tap — no fuss.",
+    "t3Title": "Your adhkar and Quran",
+    "t3Body": "A gentle nudge for evening adhkar and your Quran portion.",
+    "t4Title": "A Sunnah at its time",
+    "t4Body": "Authentic Sunnahs, with their sources, at the right moment.",
+    "t5Title": "A moment of reflection",
+    "t5Body": "Look back on your day, give thanks, and set tomorrow's intention."
   },
   "auth": {
     "title": "Sign in to Tadhkirah",
@@ -198,5 +212,14 @@
     "rateLimited": "Too many attempts. Please wait a little and try again.",
     "emailUnavailable": "We couldn't send the email right now. Please try again shortly.",
     "locationRequired": "Choose a location first."
+  },
+  "phases": {
+    "night": "Night",
+    "fajr": "Fajr",
+    "sunrise": "Sunrise",
+    "day": "Daytime",
+    "asr": "Asr",
+    "maghrib": "Maghrib",
+    "isha": "Isha"
   }
 }

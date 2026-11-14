@@ -1,17 +1,21 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { AnimatedHeadline } from '@/components/landing/animated-headline';
+import { DayTimeline } from '@/components/landing/day-timeline';
+import { FeatureArt } from '@/components/landing/feature-art';
 import { PhoneMockup } from '@/components/landing/phone-mockup';
+import { HeroSky } from '@/components/sky/hero-sky';
 import { TodayDate } from '@/components/today-date';
-import { DawnScene, GeometricPattern, Ornament } from '@/components/ui/art';
+import { GeometricPattern, Ornament } from '@/components/ui/art';
 import { Icon, type IconName } from '@/components/ui/icons';
 import { Reveal } from '@/components/ui/reveal';
 import { Link } from '@/i18n/navigation';
 import { getMe } from '@/lib/server-api';
 
-const FEATURES: { icon: IconName; n: 1 | 2 | 3 | 4 }[] = [
-  { icon: 'reflection', n: 1 },
-  { icon: 'worship', n: 2 },
-  { icon: 'book', n: 3 },
-  { icon: 'sunnah', n: 4 },
+const FEATURES: { art: 'reflection' | 'worship' | 'quran' | 'sunnah'; n: 1 | 2 | 3 | 4 }[] = [
+  { art: 'reflection', n: 1 },
+  { art: 'worship', n: 2 },
+  { art: 'quran', n: 3 },
+  { art: 'sunnah', n: 4 },
 ];
 const PRINCIPLES: { icon: IconName; n: 1 | 2 | 3 }[] = [
   { icon: 'lock', n: 1 },
@@ -68,9 +72,10 @@ export default async function Landing({ params }: PageProps<'/[locale]'>) {
               <Icon name="times" size={16} />
               {t('eyebrow')}
             </p>
-            <h1 className="tk-rise tk-rise-1 font-display text-4xl leading-tight font-bold text-text sm:text-5xl">
-              {t('heroTitle')}
-            </h1>
+            <AnimatedHeadline
+              text={t('heroTitle')}
+              className="font-display text-4xl leading-tight font-bold text-text sm:text-5xl"
+            />
             <p className="tk-rise tk-rise-2 max-w-xl text-lg leading-relaxed text-muted">
               {t('heroBody')}
             </p>
@@ -92,8 +97,8 @@ export default async function Landing({ params }: PageProps<'/[locale]'>) {
             <p className="tk-rise tk-rise-3 text-sm text-muted">{t('heroNote')}</p>
             <TodayDate />
           </div>
-          <div className="tk-rise tk-rise-2 mx-auto w-full max-w-md">
-            <DawnScene className="h-auto w-full drop-shadow-xl" />
+          <div className="tk-rise tk-rise-2">
+            <HeroSky />
           </div>
         </div>
       </section>
@@ -106,12 +111,12 @@ export default async function Landing({ params }: PageProps<'/[locale]'>) {
             <h2 className="font-display text-3xl font-bold sm:text-4xl">{t('featuresTitle')}</h2>
           </Reveal>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {FEATURES.map(({ icon, n }, i) => (
+            {FEATURES.map(({ art, n }, i) => (
               <Reveal key={n} delay={i * 90}>
-                <article className="group flex h-full flex-col gap-3 rounded-2xl border border-border bg-bg p-6 transition-colors hover:border-primary/50">
-                  <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-105">
-                    <Icon name={icon} size={24} />
-                  </span>
+                <article className="group flex h-full flex-col gap-3 rounded-2xl border border-border bg-bg p-6 transition-colors hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+                  <div className="-mx-2 rounded-xl bg-primary/5 py-2 transition-transform duration-500 group-hover:scale-[1.03]">
+                    <FeatureArt kind={art} />
+                  </div>
                   <h3 className="text-lg font-semibold">{t(`feature${n}Title`)}</h3>
                   <p className="leading-relaxed text-muted">{t(`feature${n}Body`)}</p>
                 </article>
@@ -124,7 +129,11 @@ export default async function Landing({ params }: PageProps<'/[locale]'>) {
       {/* Day starts at Fajr */}
       <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 md:grid-cols-2">
         <Reveal className="order-2 md:order-1">
-          <PhoneMockup />
+          <div className="tk-float">
+            <div className="tk-tilt">
+              <PhoneMockup />
+            </div>
+          </div>
         </Reveal>
         <Reveal className="order-1 flex flex-col gap-4 md:order-2" delay={100}>
           <span className="flex size-12 items-center justify-center rounded-xl bg-accent/15 text-accent">
@@ -133,6 +142,15 @@ export default async function Landing({ params }: PageProps<'/[locale]'>) {
           <h2 className="font-display text-3xl font-bold sm:text-4xl">{t('dayTitle')}</h2>
           <p className="text-lg leading-relaxed text-muted">{t('dayBody')}</p>
         </Reveal>
+      </section>
+
+      {/* A day with Tadhkirah */}
+      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+        <Reveal className="mb-12 flex flex-col items-center gap-3 text-center">
+          <Ornament className="text-accent" />
+          <h2 className="font-display text-3xl font-bold sm:text-4xl">{t('timelineTitle')}</h2>
+        </Reveal>
+        <DayTimeline />
       </section>
 
       {/* Principles */}
@@ -145,7 +163,7 @@ export default async function Landing({ params }: PageProps<'/[locale]'>) {
           <div className="grid gap-5 md:grid-cols-3">
             {PRINCIPLES.map(({ icon, n }, i) => (
               <Reveal key={n} delay={i * 90}>
-                <article className="flex h-full flex-col gap-3 rounded-2xl p-6">
+                <article className="flex h-full flex-col gap-3 rounded-2xl border border-transparent p-6 transition-colors duration-300 hover:border-border hover:bg-bg">
                   <Icon name={icon} size={28} className="text-primary" />
                   <h3 className="text-lg font-semibold">{t(`principle${n}Title`)}</h3>
                   <p className="leading-relaxed text-muted">{t(`principle${n}Body`)}</p>
@@ -165,6 +183,16 @@ export default async function Landing({ params }: PageProps<'/[locale]'>) {
               className="absolute inset-0 text-[#b08d3c]"
               opacity={0.12}
             />
+            <div aria-hidden className="absolute inset-0 tk-shimmer" />
+            <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-full">
+              {[8, 18, 30, 44, 57, 69, 81, 92].map((x, i) => (
+                <span
+                  key={x}
+                  className="tk-spark absolute bottom-4 size-1.5 rounded-full bg-[#f6dfa4]"
+                  style={{ insetInlineStart: `${x}%`, animationDelay: `${i * 0.85}s` }}
+                />
+              ))}
+            </div>
             <div className="relative flex flex-col items-center gap-4">
               <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
                 {t('ctaTitle')}

@@ -429,5 +429,50 @@
     "todayCardCta": "Start reflecting",
     "todayCardContinue": "Continue reflecting",
     "intentionToday": "Your intention for today"
+  },
+  "reports": {
+    "title": "Reports",
+    "weekTitle": "Your week at a glance",
+    "thisWeek": "This week",
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "excusedDays": "{count, plural, =0 {No excused days} one {1 excused day} other {{n} excused days}}",
+    "ofDays": "{logged} of {eligible}",
+    "tiles": {
+      "reflections": "Reflections written",
+      "quranPages": "Quran pages",
+      "revisedAyahs": "Ayahs revised",
+      "memorizedAyahs": "Ayahs memorized"
+    },
+    "activitiesTitle": "Your worship this week",
+    "attentionTitle": "Worth some attention",
+    "attentionBody": "Not a judgement — just a gentle invitation for next week.",
+    "attentionNone": "Mā shāʾ Allāh — nothing needs attention this week.",
+    "reviewTitle": "Looking back",
+    "prompts": {
+      "improved": "What improved this week?",
+      "neglected": "What was consistently neglected?",
+      "madeEasier": "What made worship easier?",
+      "changeNext": "What should change next week?"
+    },
+    "makeGoal": "Make it next week's goal",
+    "saveReview": "Save review",
+    "saving": "Saving…",
+    "saved": "Saved and encrypted",
+    "goalsTitle": "My goals",
+    "goalsEmpty": "No active goals right now.",
+    "addGoal": "Add a goal",
+    "goalPlaceholder": "e.g. Pray Witr before sleeping",
+    "goalDone": "Done, by Allah's grace",
+    "goalLetGo": "Let it go for now",
+    "goalBack": "Bring back",
+    "goalStatus": {
+      "active": "Active",
+      "done": "Done",
+      "let_go": "Let go"
+    },
+    "goalFromReview": "From your weekly review",
+    "footer": "Reports describe your habits — never your faith.",
+    "noActivities": "Enable activities in My Worship to see them here."
   }
 }

@@ -166,24 +166,14 @@ export function TodayView() {
       <TodayWorship />
       <ReflectionCard />
 
-      <section aria-labelledby="upcoming">
-        <h2 id="upcoming" className="mb-3 text-sm font-medium text-muted">
-          {t('upcoming')}
-        </h2>
-        <ul className="grid gap-3 sm:grid-cols-3">
-          {([['reports', 'reports']] as const).map(([k, icon]) => (
-            <li key={k}>
-              <Link
-                href={`/app/${k}`}
-                className="flex items-center gap-3 rounded-xl border border-dashed border-border px-4 py-3 text-muted hover:bg-surface"
-              >
-                <Icon name={icon} />
-                {tn(k)}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Link
+        href="/app/reports"
+        className="flex items-center gap-3 rounded-2xl border border-border bg-surface px-5 py-4 text-sm transition-colors hover:border-primary"
+      >
+        <Icon name="reports" className="text-primary" />
+        <span className="flex-1 font-medium">{tn('reports')}</span>
+        <Icon name="arrow" size={16} flipInRtl className="text-muted" />
+      </Link>
     </div>
   );
 }

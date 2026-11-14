@@ -14,6 +14,7 @@ import { MeModule } from './me/me.module.js';
 import { PrayerModule } from './prayer/prayer.module.js';
 import { QuranModule } from './quran/quran.module.js';
 import { ReflectionModule } from './reflection/reflection.module.js';
+import { ReportsModule } from './reports/reports.module.js';
 import { WorshipModule } from './worship/worship.module.js';
 
 /** HTTP API (MODE=api). */
@@ -34,6 +35,7 @@ export class AppModule {
         WorshipModule,
         QuranModule,
         ReflectionModule,
+        ReportsModule,
         MaintenanceModule,
       ],
       providers: [{ provide: APP_GUARD, useClass: CsrfGuard }],

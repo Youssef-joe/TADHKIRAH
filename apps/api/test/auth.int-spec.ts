@@ -81,7 +81,7 @@ describe('auth (M1)', () => {
       .set('X-Forwarded-For', ip)
       .send({ email })
       .expect(202);
-    expect(mailer.lastTo(email)!.subject).toBe('رمز الدخول إلى تذكرة');
+    expect(mailer.lastTo(email)!.subject).toBe('رَمْزُ الدُّخُولِ إِلَى تَذْكِرَة');
     const res = await http()
       .post('/v1/auth/email/verify')
       .set('X-Forwarded-For', ip)

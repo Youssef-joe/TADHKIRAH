@@ -57,6 +57,7 @@
   --color-excused: var(--excused);
   --color-danger: var(--danger);
   --font-sans: var(--font-ui), system-ui, sans-serif;
+  --font-display: var(--font-display-family), var(--font-ui), serif;
 }
 
 html {
@@ -69,8 +70,77 @@ html[lang='ar'] body {
   line-height: 1.9;
 }
 
+/* Gentle motion only (docs/05-ux.md §4): slow twinkle, float and glow, plus a one-time entrance. */
+@keyframes tk-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes tk-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@keyframes tk-glow {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes tk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.tk-twinkle {
+  animation: tk-twinkle 4s ease-in-out infinite;
+}
+.tk-float {
+  animation: tk-float 7s ease-in-out infinite;
+}
+.tk-glow {
+  animation: tk-glow 9s ease-in-out infinite;
+}
+.tk-rise {
+  animation: tk-rise 800ms ease-out both;
+}
+.tk-rise-1 {
+  animation-delay: 120ms;
+}
+.tk-rise-2 {
+  animation-delay: 240ms;
+}
+.tk-rise-3 {
+  animation-delay: 360ms;
+}
+
+/* Arabic with full diacritics (tashkeel) needs extra line height so marks don't collide. */
+html[lang='ar'] h1,
+html[lang='ar'] h2,
+html[lang='ar'] h3 {
+  line-height: 1.6;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     animation: none !important;
     transition: none !important;
   }

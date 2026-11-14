@@ -2,15 +2,16 @@
 
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
+import { Icon, type IconName } from './ui/icons';
 
-export const SECTIONS = [
-  { key: 'today', href: '/app/today', icon: '◐' },
-  { key: 'worship', href: '/app/worship', icon: '◇' },
-  { key: 'reflection', href: '/app/reflection', icon: '✎' },
-  { key: 'sunnah', href: '/app/sunnah', icon: '✦' },
-  { key: 'times', href: '/app/times', icon: '☾' },
-  { key: 'reports', href: '/app/reports', icon: '▤' },
-  { key: 'settings', href: '/app/settings', icon: '⚙' },
+export const SECTIONS: readonly { key: IconName & string; href: string }[] = [
+  { key: 'today', href: '/app/today' },
+  { key: 'worship', href: '/app/worship' },
+  { key: 'reflection', href: '/app/reflection' },
+  { key: 'sunnah', href: '/app/sunnah' },
+  { key: 'times', href: '/app/times' },
+  { key: 'reports', href: '/app/reports' },
+  { key: 'settings', href: '/app/settings' },
 ] as const;
 
 /** Five tabs on phones (docs/05-ux.md §2). The rest live in the sidebar on larger screens. */
@@ -29,8 +30,9 @@ export function AppNav() {
         aria-label={t('label')}
         className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-1 border-e border-border p-4 md:flex"
       >
-        <Link href="/app/today" className="mb-6 px-3 text-xl font-semibold text-primary">
-          {tApp('name')}
+        <Link href="/app/today" className="mb-6 flex items-center gap-2 px-3 text-primary">
+          <Icon name="sunnah" size={22} />
+          <span className="font-display text-2xl font-bold">{tApp('name')}</span>
         </Link>
         {SECTIONS.map((s) => (
           <Link
@@ -39,10 +41,8 @@ export function AppNav() {
             aria-current={isActive(s.href) ? 'page' : undefined}
             className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-muted hover:bg-surface aria-[current=page]:bg-surface aria-[current=page]:font-medium aria-[current=page]:text-primary"
           >
-            <span aria-hidden className="w-5 text-center">
-              {s.icon}
-            </span>
-            {t(s.key)}
+            <Icon name={s.key} />
+            {t(s.key as 'today')}
           </Link>
         ))}
       </nav>
@@ -59,10 +59,8 @@ export function AppNav() {
             aria-current={isActive(s.href) ? 'page' : undefined}
             className="flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-xs text-muted aria-[current=page]:text-primary"
           >
-            <span aria-hidden className="text-lg leading-none">
-              {s.icon}
-            </span>
-            {t(s.key)}
+            <Icon name={s.key} size={22} />
+            {t(s.key as 'today')}
           </Link>
         ))}
       </nav>

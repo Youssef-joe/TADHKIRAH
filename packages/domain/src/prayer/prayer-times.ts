@@ -133,3 +133,45 @@ export function computeWindows(
   }
   return windows;
 }
+
+const PRAYER_ORDER: PrayerName[] = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+
+/**
+ * The next prayer time after `now`. Sunrise is included, since it marks the end
+ * of Fajr's time. After Isha it returns the next day's Fajr.
+ */
+export function nextPrayer(
+  today: DailyPrayerTimes,
+  tomorrow: DailyPrayerTimes,
+  now: Date,
+): { name: PrayerName; at: Date } {
+  for (const name of PRAYER_ORDER) {
+    if (today[name].getTime() > now.getTime()) return { name, at: today[name] };
+  }
+  return { name: 'fajr', at: tomorrow.fajr };
+}
+
+/** Builds a PrayerLocation from stored settings plus the user's time zone. */
+export function toPrayerLocation(
+  settings: {
+    latitude: number;
+    longitude: number;
+    method: CalculationMethodKey;
+    asrMethod?: AsrMethod;
+    highLatRule?: HighLatRule | null;
+    adjustments?: Partial<Record<PrayerName, number>>;
+    jumuahKhutbahTime?: string | null;
+  },
+  timeZone: string,
+): PrayerLocation {
+  return {
+    latitude: settings.latitude,
+    longitude: settings.longitude,
+    timeZone,
+    method: settings.method,
+    asrMethod: settings.asrMethod,
+    highLatRule: settings.highLatRule ?? undefined,
+    adjustments: settings.adjustments,
+    jumuahKhutbahTime: settings.jumuahKhutbahTime ?? undefined,
+  };
+}

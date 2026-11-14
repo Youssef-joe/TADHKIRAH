@@ -10,6 +10,7 @@ export default async function AppLayout({ children, params }: LayoutProps<'/[loc
   setRequestLocale(locale);
   const me = await getMe();
   if (!me) redirect(`/${locale}/sign-in`);
+  if (!me.onboarded) redirect(`/${locale}/onboarding`);
 
   return (
     <MeProvider initial={me}>

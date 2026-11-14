@@ -9,12 +9,16 @@ import type {
 import { eq, schema, withUser, type DbHandle, type Tx } from '@tadhkirah/db';
 import { AppError } from '../common/http.js';
 import { DB } from '../db/db.module.js';
+import { PrayerService } from '../prayer/prayer.service.js';
 
 const { users, userProfiles, userPreferences } = schema;
 
 @Injectable()
 export class MeService {
-  constructor(@Inject(DB) private readonly handle: DbHandle) {}
+  constructor(
+    @Inject(DB) private readonly handle: DbHandle,
+    private readonly prayer: PrayerService,
+  ) {}
 
   async get(userId: string): Promise<MeResponse> {
     const [user] = await this.handle.db
@@ -23,11 +27,20 @@ export class MeService {
       .where(eq(users.id, userId));
     if (!user) throw new AppError(404, 'not_found');
 
-    return withUser(this.handle.db, userId, async (tx) => ({
-      ...user,
-      profile: await this.profile(tx, userId),
-      preferences: await this.preferences(tx, userId),
-    }));
+    return withUser(this.handle.db, userId, async (tx) => {
+      const profile = await this.profile(tx, userId);
+      const [row] = await tx
+        .select({ onboardedAt: userProfiles.onboardedAt })
+        .from(userProfiles)
+        .where(eq(userProfiles.userId, userId));
+      return {
+        ...user,
+        profile,
+        preferences: await this.preferences(tx, userId),
+        prayerSettings: await this.prayer.getSettings(tx, userId),
+        onboarded: Boolean(row?.onboardedAt),
+      };
+    });
   }
 
   async updateProfile(userId: string, patch: UpdateProfileRequest): Promise<Profile> {

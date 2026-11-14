@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
-import { IBM_Plex_Sans_Arabic, Inter } from 'next/font/google';
+import { Amiri, IBM_Plex_Sans_Arabic, Inter } from 'next/font/google';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { dir } from '@tadhkirah/i18n';
@@ -16,6 +16,13 @@ const arabic = IBM_Plex_Sans_Arabic({
   display: 'swap',
 });
 const latin = Inter({ subsets: ['latin'], variable: '--font-en', display: 'swap' });
+// Display face for headlines: classical Naskh with excellent diacritics (tashkeel).
+const display = Amiri({
+  subsets: ['arabic', 'latin'],
+  weight: ['400', '700'],
+  variable: '--font-display-family',
+  display: 'swap',
+});
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -44,7 +51,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
     <html
       lang={locale}
       dir={dir(locale)}
-      className={`${arabic.variable} ${latin.variable}`}
+      className={`${arabic.variable} ${latin.variable} ${display.variable}`}
       style={{ ['--font-ui' as string]: uiFont }}
     >
       <body className="min-h-dvh bg-bg font-sans text-text antialiased">

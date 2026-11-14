@@ -9,6 +9,7 @@ import type { Env } from './config/env.js';
 import { DbModule } from './db/db.module.js';
 import { HealthModule } from './health/health.module.js';
 import { MeModule } from './me/me.module.js';
+import { PrayerModule } from './prayer/prayer.module.js';
 
 /** HTTP API (MODE=api). */
 @Module({})
@@ -22,6 +23,7 @@ export class AppModule {
         DbModule,
         HealthModule,
         AuthModule,
+        PrayerModule,
         MeModule,
       ],
       providers: [{ provide: APP_GUARD, useClass: CsrfGuard }],

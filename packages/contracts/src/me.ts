@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { TimeZoneSchema } from './auth.js';
 import { LocaleSchema } from './common.js';
+import { PrayerSettingsSchema } from './prayer.js';
 
 export const DigitsSchema = z.enum(['arab', 'latn']);
 export const ThemeSchema = z.enum(['system', 'light', 'dark']);
@@ -26,6 +27,9 @@ export const MeResponseSchema = z.object({
   email: z.string(),
   profile: ProfileSchema,
   preferences: PreferencesSchema,
+  /** Null until the user picks a location (onboarding). */
+  prayerSettings: PrayerSettingsSchema.nullable(),
+  onboarded: z.boolean(),
 });
 export type MeResponse = z.infer<typeof MeResponseSchema>;
 

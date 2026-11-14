@@ -85,3 +85,23 @@ describe('suggestedMethod', () => {
     expect(suggestedMethod(undefined)).toBe('MuslimWorldLeague');
   });
 });
+
+describe('nextPrayer', () => {
+  const loc = cities.makkah!;
+  const today = computePrayerTimes('2026-11-14', loc);
+  const tomorrow = computePrayerTimes('2026-11-15', loc);
+
+  it('returns the upcoming prayer, including sunrise', async () => {
+    const { nextPrayer } = await import('./prayer-times.js');
+    expect(nextPrayer(today, tomorrow, new Date(today.fajr.getTime() + 60_000)).name).toBe(
+      'sunrise',
+    );
+    expect(nextPrayer(today, tomorrow, new Date(today.asr.getTime() - 60_000)).name).toBe('asr');
+  });
+
+  it("rolls over to tomorrow's Fajr after Isha", async () => {
+    const { nextPrayer } = await import('./prayer-times.js');
+    const n = nextPrayer(today, tomorrow, new Date(today.isha.getTime() + 60_000));
+    expect(n).toEqual({ name: 'fajr', at: tomorrow.fajr });
+  });
+});

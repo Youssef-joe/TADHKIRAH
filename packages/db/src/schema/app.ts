@@ -1,5 +1,15 @@
 import { sql } from 'drizzle-orm';
-import { check, pgSchema, smallint, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  check,
+  jsonb,
+  numeric,
+  pgSchema,
+  smallint,
+  text,
+  time,
+  timestamp,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { users } from './auth.js';
 
 /**
@@ -28,6 +38,8 @@ export const userProfiles = app.table('user_profiles', {
   digits: digitsEnum('digits').notNull().default('arab'),
   /** IANA timezone, validated by the API. */
   timezone: text('timezone').notNull().default('Asia/Riyadh'),
+  /** Set when the user finishes onboarding (location + calculation method). */
+  onboardedAt: timestamp('onboarded_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt,
 });
@@ -50,5 +62,46 @@ export const userPreferences = app.table(
     check('user_preferences_week_start_ck', sql`${t.weekStart} between 0 and 6`),
     check('user_preferences_hijri_offset_ck', sql`${t.hijriOffset} between -2 and 2`),
     check('user_preferences_backfill_days_ck', sql`${t.backfillDays} between 0 and 30`),
+  ],
+);
+
+export const asrMethodEnum = app.enum('asr_method', ['standard', 'hanafi']);
+export const highLatRuleEnum = app.enum('high_lat_rule', [
+  'middle_of_night',
+  'seventh_of_night',
+  'twilight_angle',
+]);
+
+/**
+ * Where and how the user's prayer times are calculated (M2). Coordinates are
+ * rounded to 2 decimals (~1 km) before storage: precise enough for prayer
+ * times, but not a home address.
+ */
+export const prayerTimeSettings = app.table(
+  'prayer_time_settings',
+  {
+    userId: uuid('user_id')
+      .primaryKey()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    latitude: numeric('latitude', { precision: 7, scale: 2, mode: 'number' }).notNull(),
+    longitude: numeric('longitude', { precision: 7, scale: 2, mode: 'number' }).notNull(),
+    locationLabel: text('location_label').notNull(),
+    countryCode: text('country_code'),
+    /** adhan calculation method key, validated against the domain list by the API. */
+    method: text('method').notNull(),
+    asrMethod: asrMethodEnum('asr_method').notNull().default('standard'),
+    highLatRule: highLatRuleEnum('high_lat_rule'),
+    /** Per-prayer minute adjustments, e.g. {"fajr": 2}. */
+    adjustments: jsonb('adjustments').$type<Record<string, number>>().notNull().default({}),
+    jumuahKhutbahTime: time('jumuah_khutbah_time'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    check('prayer_lat_ck', sql`${t.latitude} between -90 and 90`),
+    check('prayer_lng_ck', sql`${t.longitude} between -180 and 180`),
   ],
 );

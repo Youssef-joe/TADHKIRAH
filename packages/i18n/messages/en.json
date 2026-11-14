@@ -15,10 +15,41 @@
     "more": "More"
   },
   "home": {
-    "privacy": "Your reflections are yours alone. We never show them to anyone or use them for advertising or AI training.",
     "start": "Get started",
     "openApp": "Open the app",
     "switchLanguage": "العربية"
+  },
+  "landing": {
+    "navSignIn": "Sign in",
+    "eyebrow": "Your daily companion for self-accountability",
+    "heroTitle": "Gently hold yourself to account, and return to Allah every day",
+    "heroBody": "Tadhkirah is a calm, private space to review your day, keep your prayers and Quran portion, and remember authentic Sunnahs at the right moments — without points, comparisons or blame.",
+    "ctaStart": "Start free",
+    "ctaLearn": "How it works",
+    "heroNote": "No password · No ads · Your data is yours alone",
+    "featuresTitle": "Everything you need for a day closer to Allah",
+    "feature1Title": "Self-accountability",
+    "feature1Body": "Daily questions you choose yourself, with room for gratitude, repentance and tomorrow's intention.",
+    "feature2Title": "Consistent worship",
+    "feature2Body": "Follow your prayers, adhkar and voluntary worship, with a clear line between obligatory and voluntary.",
+    "feature3Title": "Your Quran portion",
+    "feature3Body": "Record your recitation, memorization and revision by surah and ayah.",
+    "feature4Title": "Authentic Sunnahs, on time",
+    "feature4Body": "Reminders of Sunnahs and times of supplication, each with its source and grading, after scholarly review.",
+    "dayTitle": "Your day begins with Fajr",
+    "dayBody": "Tadhkirah calculates prayer times for your city on your device, and your day starts at Fajr — so Isha and Witr count for their day, even after midnight.",
+    "principlesTitle": "Principles we won't compromise",
+    "principle1Title": "Privacy first",
+    "principle1Body": "Your reflections are yours alone. We never show them to anyone, sell them, or train any AI on them.",
+    "principle2Title": "Authenticity before quantity",
+    "principle2Body": "No weak or fabricated hadith. Nothing is published without documented human review.",
+    "principle3Title": "No measuring of faith",
+    "principle3Body": "No points, rankings or blame. We help you keep going and return — not compete.",
+    "ctaTitle": "Start your first day now",
+    "ctaBody": "Two minutes to set up, then one day at a time, in shā' Allāh.",
+    "footer": "Made with care to help you do good.",
+    "mockNext": "Next prayer",
+    "mockReflect": "A moment to look back on your day"
   },
   "auth": {
     "title": "Sign in to Tadhkirah",
@@ -35,7 +66,8 @@
     "resent": "A new code is on its way.",
     "changeEmail": "Use a different email",
     "checkSpam": "Can't find it? Check your spam folder, or tap the link in the email.",
-    "privacyNote": "We only ask for your email, and never share it."
+    "privacyNote": "We only ask for your email, and never share it.",
+    "backHome": "Back to home"
   },
   "verify": {
     "verifying": "Signing you in…",
@@ -49,9 +81,71 @@
   },
   "today": {
     "intro": "This is your daily page. Soon you'll find your prayers, adhkar and Quran portion here, and a moment to look back on your day.",
-    "dayStartsAtFajr": "Your day in Tadhkirah starts at Fajr.",
-    "setLocation": "Set your location in Settings so your day starts at Fajr in your city exactly.",
-    "upcoming": "Coming soon"
+    "dayBounds": "Your day began at Fajr ({time}) in {place}.",
+    "upcoming": "Coming soon",
+    "prayerTimes": "Prayer times",
+    "nextPrayer": "{prayer} in {duration}",
+    "nextPrayerLabel": "Next prayer",
+    "changeLocation": "Change location"
+  },
+  "prayers": {
+    "fajr": "Fajr",
+    "sunrise": "Sunrise",
+    "dhuhr": "Dhuhr",
+    "asr": "Asr",
+    "maghrib": "Maghrib",
+    "isha": "Isha"
+  },
+  "methods": {
+    "MuslimWorldLeague": "Muslim World League",
+    "Egyptian": "Egyptian General Authority of Survey",
+    "Karachi": "University of Islamic Sciences, Karachi",
+    "UmmAlQura": "Umm al-Qura (Makkah)",
+    "Dubai": "UAE (Dubai)",
+    "Qatar": "Qatar",
+    "Kuwait": "Kuwait",
+    "MoonsightingCommittee": "Moonsighting Committee",
+    "NorthAmerica": "North America (ISNA)",
+    "Singapore": "Singapore",
+    "Turkey": "Turkey (Diyanet)",
+    "Tehran": "Tehran"
+  },
+  "onboarding": {
+    "title": "Let's set up your day",
+    "subtitle": "Just two steps so we can calculate prayer times and start your day at Fajr.",
+    "step": "Step {n} of {total}",
+    "locationTitle": "Where do you pray?",
+    "locationHint": "Times are calculated on your device. We store an approximate location (about 1 km) for reminders only.",
+    "searchCity": "Search for your city",
+    "searchPlaceholder": "e.g. Riyadh, Dubai, Cairo",
+    "noResults": "We couldn't find that city. Try your current location or enter coordinates.",
+    "useMyLocation": "Use my current location",
+    "locating": "Locating…",
+    "locationDenied": "We couldn't access your location. Please choose your city from the list.",
+    "nearCity": "Near {city}",
+    "manual": "Enter coordinates manually",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "placeName": "Place name",
+    "useCoordinates": "Use these coordinates",
+    "selected": "Selected location",
+    "methodTitle": "Calculation method",
+    "methodHint": "We picked the method most used in your country; you can change it. Compare it with your mosque's timetable.",
+    "method": "Method",
+    "asr": "Asr calculation",
+    "asrStandard": "Majority (Shafi'i, Maliki, Hanbali)",
+    "asrHanafi": "Hanafi",
+    "highLat": "High-latitude rule",
+    "highLatHint": "For places far from the equator, where twilight lasts long in summer.",
+    "highLatNone": "Automatic",
+    "highLatMiddle": "Middle of the night",
+    "highLatSeventh": "One-seventh of the night",
+    "highLatAngle": "Twilight angle",
+    "preview": "Today's times with these settings",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Start my day",
+    "saving": "Saving…"
   },
   "comingSoon": {
     "title": "Under construction",
@@ -73,6 +167,7 @@
     "hijriOffset": "Hijri date adjustment",
     "hijriOffsetHint": "If the moon sighting in your country differs from the Umm al-Qura calendar.",
     "days": "{n, plural, one {# day} other {# days}}",
+    "noAdjustment": "No adjustment",
     "theme": "Appearance",
     "themeSystem": "Match device",
     "themeLight": "Light",
@@ -80,6 +175,11 @@
     "save": "Save",
     "saving": "Saving…",
     "saved": "Saved",
+    "prayer": "Prayer times",
+    "khutbah": "Friday khutbah time at your mosque (optional)",
+    "khutbahHint": "Used for Friday reminders.",
+    "adjustments": "Minute adjustments",
+    "adjustmentsHint": "If your mosque's timetable differs by a minute or two.",
     "sessions": "Signed-in devices",
     "sessionsHint": "Devices where you're signed in. Sign out any device you don't recognise.",
     "thisDevice": "This device",
@@ -88,8 +188,7 @@
     "revoke": "Sign out",
     "signOut": "Sign out of this device",
     "privacy": "Privacy",
-    "privacyBody": "Exporting your data and deleting your account arrive in milestone 8, in shā' Allāh.",
-    "noAdjustment": "No adjustment"
+    "privacyBody": "Exporting your data and deleting your account arrive in milestone 8, in shā' Allāh."
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -97,6 +196,7 @@
     "invalidEmail": "Enter a valid email address.",
     "invalidCode": "That code is incorrect or has expired.",
     "rateLimited": "Too many attempts. Please wait a little and try again.",
-    "emailUnavailable": "We couldn't send the email right now. Please try again shortly."
+    "emailUnavailable": "We couldn't send the email right now. Please try again shortly.",
+    "locationRequired": "Choose a location first."
   }
 }

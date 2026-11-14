@@ -6,6 +6,7 @@ import type { Preferences, Profile, SessionInfo } from '@tadhkirah/contracts';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { api, errorKey } from '@/lib/api';
 import { useMe } from './me-context';
+import { PrayerSettingsCard } from './prayer/prayer-settings-card';
 import { Button, Card, Field, Input, Select, Status } from './ui/primitives';
 
 type SaveState = { tone: 'ok' | 'error'; text: string } | null;
@@ -276,8 +277,9 @@ export function SettingsView() {
   const t = useTranslations('settings');
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">{t('title')}</h1>
+      <h1 className="font-display text-3xl font-bold">{t('title')}</h1>
       <ProfileCard />
+      <PrayerSettingsCard />
       <PreferencesCard />
       <SessionsCard />
       <Card title={t('privacy')}>

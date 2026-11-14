@@ -50,6 +50,20 @@
       "when": 1794683272906,
       "tag": "0006_worship_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794684899671,
+      "tag": "0007_quran",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794684900737,
+      "tag": "0008_quran_rls",
+      "breakpoints": true
     }
   ]
 }

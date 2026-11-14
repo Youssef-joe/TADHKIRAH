@@ -66,6 +66,32 @@ export class PrayerService {
       : trackingDate(now, { kind: 'unlocated', timeZone });
   }
 
+  /** The user's backfill window (days before today that can still be edited, WOR-8). */
+  async backfillDays(tx: Tx, userId: string): Promise<number> {
+    const [prefs] = await tx
+      .select({ backfillDays: userPreferences.backfillDays })
+      .from(userPreferences)
+      .where(eq(userPreferences.userId, userId));
+    return prefs?.backfillDays ?? 7;
+  }
+
+  /**
+   * Throws unless `date` is today or within the backfill window (never the future).
+   * Returns today's tracking date. Shared by the worship and Quran logs.
+   */
+  async assertWritableDay(tx: Tx, userId: string, date: string): Promise<LocalDate> {
+    const today = await this.trackingToday(tx, userId);
+    const backfill = await this.backfillDays(tx, userId);
+    if (date > today || date < addDays(today, -backfill)) {
+      throw new AppError(
+        422,
+        'worship.outside_backfill_window',
+        'This day can no longer be edited.',
+      );
+    }
+    return today;
+  }
+
   private async upsert(tx: Tx, userId: string, s: PrayerSettings): Promise<void> {
     const values = {
       ...s,

@@ -10,13 +10,13 @@ import type {
 } from '@tadhkirah/contracts';
 import { CreateCustomActivitySchema } from '@tadhkirah/contracts';
 import { and, eq, isNull, schema, sql, withUser, type DbHandle, type Tx } from '@tadhkirah/db';
-import { addDays, CATALOG, CATALOG_BY_KEY, type LocalDate } from '@tadhkirah/domain';
+import { CATALOG, CATALOG_BY_KEY } from '@tadhkirah/domain';
 import type { z } from 'zod';
 import { AppError } from '../common/http.js';
 import { DB } from '../db/db.module.js';
 import { PrayerService } from '../prayer/prayer.service.js';
 
-const { userActivities, worshipLogs, dayFlags, userPreferences } = schema;
+const { userActivities, worshipLogs, dayFlags } = schema;
 const MAX_RANGE_DAYS = 92;
 
 type ActivityRow = typeof userActivities.$inferSelect;
@@ -209,22 +209,8 @@ export class WorshipService {
 
   // ---------- logs and day flags ----------
 
-  /** Logging is allowed for today and the last `backfillDays` days, never the future (WOR-8). */
-  private async assertWritable(tx: Tx, userId: string, date: string): Promise<LocalDate> {
-    const today = await this.prayer.trackingToday(tx, userId);
-    const [prefs] = await tx
-      .select({ backfillDays: userPreferences.backfillDays })
-      .from(userPreferences)
-      .where(eq(userPreferences.userId, userId));
-    const backfill = prefs?.backfillDays ?? 7;
-    if (date > today || date < addDays(today, -backfill)) {
-      throw new AppError(
-        422,
-        'worship.outside_backfill_window',
-        'This day can no longer be edited.',
-      );
-    }
-    return today;
+  private assertWritable(tx: Tx, userId: string, date: string) {
+    return this.prayer.assertWritableDay(tx, userId, date);
   }
 
   async logs(userId: string, from: string, to: string): Promise<LogsResponse> {
@@ -243,13 +229,9 @@ export class WorshipService {
         .select()
         .from(dayFlags)
         .where(and(eq(dayFlags.userId, userId), range(dayFlags.localDate)));
-      const [prefs] = await tx
-        .select({ backfillDays: userPreferences.backfillDays })
-        .from(userPreferences)
-        .where(eq(userPreferences.userId, userId));
       return {
         today: await this.prayer.trackingToday(tx, userId),
-        backfillDays: prefs?.backfillDays ?? 7,
+        backfillDays: await this.prayer.backfillDays(tx, userId),
         logs: logs.map(logDto),
         flags: flags.map((f) => ({
           localDate: f.localDate,

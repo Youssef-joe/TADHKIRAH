@@ -19,6 +19,7 @@ import { SkyScene } from './sky/sky-scene';
 import { Icon } from './ui/icons';
 import { Card } from './ui/primitives';
 import { TodayWorship } from './worship/today-worship';
+import { RevisionHint } from './quran/revision-hint';
 
 const ORDER = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
 
@@ -159,6 +160,7 @@ export function TodayView() {
         </Card>
       )}
 
+      <RevisionHint />
       <TodayWorship />
 
       <section aria-labelledby="upcoming">

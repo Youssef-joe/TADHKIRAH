@@ -10,6 +10,7 @@ import { eq, schema, withUser, type DbHandle, type Tx } from '@tadhkirah/db';
 import { AppError } from '../common/http.js';
 import { DB } from '../db/db.module.js';
 import { PrayerService } from '../prayer/prayer.service.js';
+import { PlannerService } from '../reminders/planner.service.js';
 
 const { users, userProfiles, userPreferences } = schema;
 
@@ -18,6 +19,7 @@ export class MeService {
   constructor(
     @Inject(DB) private readonly handle: DbHandle,
     private readonly prayer: PrayerService,
+    private readonly planner: PlannerService,
   ) {}
 
   async get(userId: string): Promise<MeResponse> {
@@ -44,6 +46,8 @@ export class MeService {
   }
 
   async updateProfile(userId: string, patch: UpdateProfileRequest): Promise<Profile> {
+    // Reminders are planned in local time: a new time zone (e.g. travel) means re-planning (AC-TZ).
+    if (patch.timezone || patch.locale) await this.planner.invalidate(userId);
     return withUser(this.handle.db, userId, async (tx) => {
       await this.profile(tx, userId); // make sure the row exists
       if (Object.keys(patch).length) {
@@ -54,6 +58,7 @@ export class MeService {
   }
 
   async updatePreferences(userId: string, patch: UpdatePreferencesRequest): Promise<Preferences> {
+    if (patch.weekStart !== undefined) await this.planner.invalidate(userId);
     return withUser(this.handle.db, userId, async (tx) => {
       await this.preferences(tx, userId);
       if (Object.keys(patch).length) {

@@ -10,11 +10,15 @@ import type { DbHandle } from '@tadhkirah/db';
 import { ENV } from '../config/config.module.js';
 import type { Env } from '../config/env.js';
 import { DB } from '../db/db.module.js';
+import { DispatcherService } from '../reminders/dispatcher.service.js';
+import { PlannerService } from '../reminders/planner.service.js';
 import { purgeExpired } from './purge.js';
 
 export const QUEUES = {
   heartbeat: 'system.heartbeat',
   purge: 'maintenance.purge',
+  plan: 'reminders.plan',
+  dispatch: 'reminders.dispatch',
 } as const;
 
 /**
@@ -29,6 +33,8 @@ export class JobsService implements OnApplicationBootstrap, OnApplicationShutdow
   constructor(
     @Inject(ENV) private readonly env: Env,
     @Inject(DB) private readonly handle: DbHandle,
+    private readonly planner: PlannerService,
+    private readonly dispatcher: DispatcherService,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -49,6 +55,19 @@ export class JobsService implements OnApplicationBootstrap, OnApplicationShutdow
     await boss.work(QUEUES.purge, async () => {
       const counts = await purgeExpired(this.handle.db);
       this.logger.log({ counts }, 'purged expired records');
+    });
+
+    // Reminders (self-hosted path; on Vercel the Cloudflare Worker calls the cron endpoints instead).
+    await boss.createQueue(QUEUES.plan);
+    await boss.schedule(QUEUES.plan, '*/5 * * * *', null, { tz: 'UTC' });
+    await boss.work(QUEUES.plan, async () => {
+      this.logger.log({ result: await this.planner.planDue() }, 'planned reminders');
+    });
+    await boss.createQueue(QUEUES.dispatch);
+    await boss.schedule(QUEUES.dispatch, '* * * * *', null, { tz: 'UTC' });
+    await boss.work(QUEUES.dispatch, async () => {
+      const result = await this.dispatcher.dispatch();
+      if (result.sent || result.expired) this.logger.log({ result }, 'dispatched reminders');
     });
 
     this.logger.log('worker started');

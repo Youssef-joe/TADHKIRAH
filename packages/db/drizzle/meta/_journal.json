@@ -92,6 +92,20 @@
       "when": 1794688623129,
       "tag": "0012_reports_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794690881631,
+      "tag": "0013_reminders",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794690883597,
+      "tag": "0014_reminders_rls",
+      "breakpoints": true
     }
   ]
 }

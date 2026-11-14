@@ -11,6 +11,10 @@ const csv = (fallback: string) =>
         .filter(Boolean),
     );
 
+/** Optional setting where an empty value (e.g. an unset docker-compose variable) means "not set". */
+const optional = <T extends z.ZodType>(schema: T) =>
+  z.preprocess((v) => (v === '' ? undefined : v), schema.optional());
+
 /** Every runtime setting, checked once at boot. The process refuses to start if any is invalid. */
 export const EnvSchema = z
   .object({
@@ -47,8 +51,15 @@ export const EnvSchema = z
       .string()
       .refine((v) => Buffer.from(v, 'base64').length === 32, 'must be 32 bytes, base64-encoded'),
     MASTER_KEY_VERSION: z.string().default('v1'),
+    /** Web Push VAPID keys (npx web-push generate-vapid-keys). Without them, reminders go to the in-app inbox only. */
+    VAPID_PUBLIC_KEY: optional(z.string().min(20)),
+    VAPID_PRIVATE_KEY: optional(z.string().min(20)),
+    /** Contact for push services: a mailto: or https: URL. Defaults to PUBLIC_WEB_URL. */
+    VAPID_SUBJECT: optional(z.string()),
+    /** `memory` records pushes for tests. */
+    PUSH_TRANSPORT: z.enum(['webpush', 'memory']).default('webpush'),
     /** Shared secret for scheduled jobs (Vercel Cron sends it as `Authorization: Bearer …`). */
-    CRON_SECRET: z.string().min(16).optional(),
+    CRON_SECRET: optional(z.string().min(16)),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === 'production') {

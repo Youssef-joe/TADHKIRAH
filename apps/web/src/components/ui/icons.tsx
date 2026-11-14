@@ -17,7 +17,8 @@ export type IconName =
   | 'lock'
   | 'shield'
   | 'heart'
-  | 'book';
+  | 'book'
+  | 'inbox';
 
 const PATHS: Record<IconName, string> = {
   // Sun rising over the horizon
@@ -45,6 +46,7 @@ const PATHS: Record<IconName, string> = {
   shield: 'M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6zM8.5 12l2.5 2.5 4.5-5',
   heart:
     'M12 20s-7.5-4.6-9.2-9.4C1.6 7.2 4 4 7.3 4c2 0 3.5 1.2 4.7 2.8C13.2 5.2 14.7 4 16.7 4 20 4 22.4 7.2 21.2 10.6 19.5 15.4 12 20 12 20z',
+  inbox: 'M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4',
   book: 'M4 4.5A1.5 1.5 0 0 1 5.5 3H20v15H5.5A1.5 1.5 0 0 0 4 19.5zM4 19.5A1.5 1.5 0 0 0 5.5 21H20M9 7h7M9 10h5',
 };
 

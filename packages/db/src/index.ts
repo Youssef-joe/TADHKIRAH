@@ -55,3 +55,18 @@ export async function scopeToUser(tx: Tx, userId: string): Promise<void> {
   await tx.execute(sql`select set_config('app.user_id', ${userId}, true)`);
   await tx.execute(sql.raw(`set local role ${APP_ROLE}`));
 }
+
+/**
+ * Runs `fn` as a background job across all users (reminder planner and
+ * dispatcher). It runs as the table owner and enables only the narrow
+ * `system_jobs` policies (migration 0014): reminder tables plus the profile,
+ * prayer-settings and preference rows needed to compute times. Private
+ * content (reflections, goals, reviews) has no such policy and stays
+ * invisible here.
+ */
+export async function withSystem<T>(db: Database, fn: (tx: Tx) => Promise<T>): Promise<T> {
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`select set_config('app.system', 'on', true)`);
+    return fn(tx);
+  });
+}

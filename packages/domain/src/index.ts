@@ -10,3 +10,4 @@ export * from './quran/surahs.js';
 export * from './quran/progress.js';
 export * from './reflection/questions.js';
 export * from './reports/week.js';
+export * from './reminders/plan.js';

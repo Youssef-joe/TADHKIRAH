@@ -4,13 +4,14 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { Icon, type IconName } from './ui/icons';
 
-export const SECTIONS: readonly { key: IconName & string; href: string }[] = [
+export const SECTIONS: readonly { key: IconName; href: string }[] = [
   { key: 'today', href: '/app/today' },
   { key: 'worship', href: '/app/worship' },
   { key: 'reflection', href: '/app/reflection' },
   { key: 'sunnah', href: '/app/sunnah' },
   { key: 'times', href: '/app/times' },
   { key: 'reports', href: '/app/reports' },
+  { key: 'inbox', href: '/app/inbox' },
   { key: 'settings', href: '/app/settings' },
 ] as const;
 

@@ -17,6 +17,7 @@ import {
 import type { z } from 'zod';
 import { AppError } from '../common/http.js';
 import { DB } from '../db/db.module.js';
+import { PlannerService } from '../reminders/planner.service.js';
 
 const { prayerTimeSettings, userProfiles, userPreferences } = schema;
 
@@ -29,7 +30,10 @@ const MAX_RANGE_DAYS = 31;
 
 @Injectable()
 export class PrayerService {
-  constructor(@Inject(DB) private readonly handle: DbHandle) {}
+  constructor(
+    @Inject(DB) private readonly handle: DbHandle,
+    private readonly planner: PlannerService,
+  ) {}
 
   async getSettings(tx: Tx, userId: string): Promise<PrayerSettings | null> {
     const [row] = await tx
@@ -106,10 +110,12 @@ export class PrayerService {
   }
 
   async updateSettings(userId: string, s: PrayerSettings): Promise<PrayerSettings> {
-    return withUser(this.handle.db, userId, async (tx) => {
+    const out = await withUser(this.handle.db, userId, async (tx) => {
       await this.upsert(tx, userId, s);
       return (await this.getSettings(tx, userId))!;
     });
+    await this.planner.invalidate(userId); // prayer-relative reminders move with the location
+    return out;
   }
 
   /** Saves location, method and time zone in one go, and marks onboarding complete. */
@@ -130,6 +136,7 @@ export class PrayerService {
         })
         .where(eq(userProfiles.userId, userId));
     });
+    await this.planner.invalidate(userId);
   }
 
   /** Prayer times for a date range, computed from the user's own settings. */

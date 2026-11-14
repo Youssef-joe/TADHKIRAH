@@ -1,0 +1,12 @@
+// Cloudflare Worker that triggers Tadhkirah's reminder jobs on Vercel (ADR-004).
+// Vercel Hobby cron runs at most once a day, so this calls the API's cron endpoints instead.
+// Deploy:  npx wrangler deploy        Secret:  npx wrangler secret put CRON_SECRET
+{
+  "name": "tadhkirah-cron",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": false,
+  "triggers": { "crons": ["* * * * *", "*/5 * * * *"] },
+  "vars": { "API_BASE": "https://tadhkirah-zeta.vercel.app" },
+  "observability": { "enabled": true },
+}

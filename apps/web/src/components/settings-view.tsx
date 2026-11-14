@@ -7,6 +7,7 @@ import { usePathname, useRouter } from '@/i18n/navigation';
 import { api, errorKey } from '@/lib/api';
 import { useMe } from './me-context';
 import { PrayerSettingsCard } from './prayer/prayer-settings-card';
+import { RemindersCard } from './reminders/reminders-card';
 import { Button, Card, Field, Input, Select, Status } from './ui/primitives';
 
 type SaveState = { tone: 'ok' | 'error'; text: string } | null;
@@ -280,6 +281,9 @@ export function SettingsView() {
       <h1 className="font-display text-3xl font-bold">{t('title')}</h1>
       <ProfileCard />
       <PrayerSettingsCard />
+      <div id="reminders" className="scroll-mt-6">
+        <RemindersCard />
+      </div>
       <PreferencesCard />
       <SessionsCard />
       <Card title={t('privacy')}>

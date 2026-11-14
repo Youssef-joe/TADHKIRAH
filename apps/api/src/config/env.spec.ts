@@ -28,6 +28,13 @@ describe('loadEnv', () => {
     expect(() => loadEnv({ ...base, MASTER_KEY: 'c2hvcnQ=' })).toThrow(/MASTER_KEY/);
   });
 
+  it('treats empty optional values (unset docker-compose variables) as not set', () => {
+    const env = loadEnv({ ...base, VAPID_PUBLIC_KEY: '', VAPID_PRIVATE_KEY: '', CRON_SECRET: '' });
+    expect(env.VAPID_PUBLIC_KEY).toBeUndefined();
+    expect(env.CRON_SECRET).toBeUndefined();
+    expect(() => loadEnv({ ...base, CRON_SECRET: 'short' })).toThrow(/CRON_SECRET/);
+  });
+
   it('requires a long AUTH_SECRET', () => {
     expect(() => loadEnv({ ...base, AUTH_SECRET: 'short' })).toThrow(/AUTH_SECRET/);
   });

@@ -1,6 +1,6 @@
-import { schema, sql, type Database } from '@tadhkirah/db';
+import { schema, sql, withSystem, type Database } from '@tadhkirah/db';
 
-const { emailTokens, rateLimits, sessions } = schema;
+const { emailTokens, rateLimits, sessions, scheduledReminders, notificationLog } = schema;
 
 /**
  * Deletes records past their retention period (docs/03-data-model.md §5).
@@ -21,5 +21,23 @@ export async function purgeExpired(db: Database): Promise<Record<string, number>
       sql`coalesce(${sessions.revokedAt}, least(${sessions.expiresAt}, ${sessions.absoluteExpiresAt})) < now() - interval '90 days'`,
     )
     .returning({ id: sessions.id });
-  return { emailTokens: tokens.length, rateLimits: limits.length, sessions: oldSessions.length };
+  // Reminder history: planned rows 30 days after firing, the inbox after 90 days.
+  const reminders = await withSystem(db, async (tx) => {
+    const sr = await tx
+      .delete(scheduledReminders)
+      .where(sql`${scheduledReminders.fireAt} < now() - interval '30 days'`)
+      .returning({ id: scheduledReminders.id });
+    const nl = await tx
+      .delete(notificationLog)
+      .where(sql`${notificationLog.sentAt} < now() - interval '90 days'`)
+      .returning({ id: notificationLog.id });
+    return { scheduled: sr.length, inbox: nl.length };
+  });
+  return {
+    emailTokens: tokens.length,
+    rateLimits: limits.length,
+    sessions: oldSessions.length,
+    scheduledReminders: reminders.scheduled,
+    notifications: reminders.inbox,
+  };
 }

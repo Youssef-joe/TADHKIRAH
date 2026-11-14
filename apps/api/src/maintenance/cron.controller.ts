@@ -5,6 +5,8 @@ import { AppError } from '../common/http.js';
 import { ENV } from '../config/config.module.js';
 import type { Env } from '../config/env.js';
 import { DB } from '../db/db.module.js';
+import { DispatcherService } from '../reminders/dispatcher.service.js';
+import { PlannerService } from '../reminders/planner.service.js';
 import { purgeExpired } from '../worker/purge.js';
 
 /**
@@ -19,7 +21,23 @@ export class CronController {
   constructor(
     @Inject(ENV) private readonly env: Env,
     @Inject(DB) private readonly handle: DbHandle,
+    private readonly planner: PlannerService,
+    private readonly dispatcher: DispatcherService,
   ) {}
+
+  /** Every 5 minutes (Cloudflare Worker): plan reminders for users whose horizon is running out. */
+  @Get('plan')
+  async plan(@Headers('authorization') authorization?: string) {
+    this.authorize(authorization);
+    return this.planner.planDue();
+  }
+
+  /** Every minute (Cloudflare Worker): send due reminders. */
+  @Get('dispatch')
+  async dispatch(@Headers('authorization') authorization?: string) {
+    this.authorize(authorization);
+    return this.dispatcher.dispatch();
+  }
 
   @Get('purge')
   async purge(@Headers('authorization') authorization?: string): Promise<Record<string, number>> {

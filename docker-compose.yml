@@ -13,6 +13,9 @@ x-api-env: &api-env
   AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET (openssl rand -base64 48)}
   # Encryption master key for reflections (openssl rand -base64 32). KEEP AN OFFLINE COPY.
   MASTER_KEY: ${MASTER_KEY:?set MASTER_KEY (openssl rand -base64 32)}
+  # Web Push (optional): npx web-push generate-vapid-keys. Without them reminders go to the inbox only.
+  VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+  VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
   SMTP_URL: ${SMTP_URL:?set SMTP_URL (smtp://user:pass@host:587)}
   MAIL_FROM: ${MAIL_FROM:-Tadhkirah <no-reply@example.com>}
   ALLOW_INSECURE_HTTP: ${ALLOW_INSECURE_HTTP:-false}

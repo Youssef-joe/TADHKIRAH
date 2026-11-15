@@ -63,3 +63,21 @@ export type SessionInfo = z.infer<typeof SessionSchema>;
  */
 export const CSRF_HEADER = 'x-tadhkirah-csrf';
 export const SESSION_COOKIE = 'tadhkirah_session';
+
+/** Sign in with Google / Apple (ACC-2). */
+export const OAuthProviderSchema = z.enum(['google', 'apple']);
+export type OAuthProviderId = z.infer<typeof OAuthProviderSchema>;
+export const OAuthProvidersResponseSchema = z.object({ providers: z.array(OAuthProviderSchema) });
+export type OAuthProvidersResponse = z.infer<typeof OAuthProvidersResponseSchema>;
+export const OAuthStartQuerySchema = z.object({
+  locale: LocaleSchema.default('ar'),
+  tz: z.string().max(64).optional(),
+});
+export const LinkedIdentitySchema = z.object({
+  id: z.uuid(),
+  provider: OAuthProviderSchema,
+  email: z.string().nullable(),
+  createdAt: z.iso.datetime(),
+  lastUsedAt: z.iso.datetime(),
+});
+export type LinkedIdentity = z.infer<typeof LinkedIdentitySchema>;

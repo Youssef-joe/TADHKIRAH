@@ -11,7 +11,12 @@ export interface AccountExport {
   format: 'tadhkirah-export';
   version: 1;
   exportedAt: string;
-  account: { email: string; createdAt: string };
+  account: {
+    email: string;
+    createdAt: string;
+    /** Google / Apple accounts linked for sign-in: the provider's subject id and email. */
+    linkedSignIns: { provider: string; subject: string; email: string | null; linkedAt: string }[];
+  };
   profile: Record<string, unknown> | null;
   preferences: Record<string, unknown> | null;
   prayerSettings: Record<string, unknown> | null;
@@ -112,12 +117,27 @@ export class ExportService {
       .where(eq(s.sessions.userId, userId))
       .orderBy(asc(s.sessions.createdAt));
 
+    const identities = await this.handle.db
+      .select()
+      .from(s.oauthIdentities)
+      .where(eq(s.oauthIdentities.userId, userId))
+      .orderBy(asc(s.oauthIdentities.createdAt));
+
     const data = await withUser(this.handle.db, userId, (tx) => this.collectApp(tx, userId));
     return {
       format: 'tadhkirah-export',
       version: 1,
       exportedAt: new Date().toISOString(),
-      account: { email: user!.email, createdAt: user!.createdAt.toISOString() },
+      account: {
+        email: user!.email,
+        createdAt: user!.createdAt.toISOString(),
+        linkedSignIns: identities.map((i) => ({
+          provider: i.provider,
+          subject: i.subject,
+          email: i.email,
+          linkedAt: i.createdAt.toISOString(),
+        })),
+      },
       ...data,
       // Token hashes stay private; only what identifies the device to its owner.
       devices: devices.map((d) => ({

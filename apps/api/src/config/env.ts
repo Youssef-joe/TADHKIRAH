@@ -65,10 +65,43 @@ export const EnvSchema = z
       .enum(['true', 'false'])
       .default('true')
       .transform((v) => v === 'true'),
+    /**
+     * Sign in with Google (ACC-2): an OAuth "Web application" client from Google Cloud.
+     * Redirect URI: `${PUBLIC_WEB_URL}/v1/auth/oauth/google/callback`. Unset = no Google button.
+     */
+    GOOGLE_CLIENT_ID: optional(z.string().min(10)),
+    GOOGLE_CLIENT_SECRET: optional(z.string().min(10)),
+    /**
+     * Sign in with Apple (ACC-2): a Services ID (client id), the team id, and a
+     * Sign in with Apple key (.p8 contents; `\n` escapes allowed). Redirect URI:
+     * `${PUBLIC_WEB_URL}/v1/auth/oauth/apple/callback`. Unset = no Apple button.
+     */
+    APPLE_CLIENT_ID: optional(z.string().min(3)),
+    APPLE_TEAM_ID: optional(z.string().min(3)),
+    APPLE_KEY_ID: optional(z.string().min(3)),
+    APPLE_PRIVATE_KEY: optional(
+      z
+        .string()
+        .transform((v) => v.replace(/\\n/g, '\n'))
+        .refine((v) => v.includes('PRIVATE KEY'), 'must be the .p8 key contents'),
+    ),
+    /** OpenID issuers. Change only to point tests at a stand-in provider. */
+    OAUTH_GOOGLE_ISSUER: z.url().default('https://accounts.google.com'),
+    OAUTH_APPLE_ISSUER: z.url().default('https://appleid.apple.com'),
     /** Shared secret for scheduled jobs (Vercel Cron sends it as `Authorization: Bearer …`). */
     CRON_SECRET: optional(z.string().min(16)),
   })
   .superRefine((env, ctx) => {
+    const groups = {
+      google: ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'],
+      apple: ['APPLE_CLIENT_ID', 'APPLE_TEAM_ID', 'APPLE_KEY_ID', 'APPLE_PRIVATE_KEY'],
+    } as const;
+    for (const keys of Object.values(groups)) {
+      const set = keys.filter((k) => env[k]);
+      if (set.length && set.length < keys.length)
+        for (const k of keys.filter((k) => !env[k]))
+          ctx.addIssue({ code: 'custom', path: [k], message: `required with ${set.join(', ')}` });
+    }
     if (env.NODE_ENV === 'production') {
       if (env.MAIL_TRANSPORT !== 'smtp') {
         ctx.addIssue({

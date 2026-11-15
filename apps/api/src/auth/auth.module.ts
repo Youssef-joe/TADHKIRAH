@@ -5,15 +5,18 @@ import type { Env } from '../config/env.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { createMailer, MAILER } from './mailer.js';
+import { OAuthController } from './oauth/oauth.controller.js';
+import { OAuthService } from './oauth/oauth.service.js';
 import { SessionGuard } from './session.guard.js';
 import { SessionsService } from './sessions.service.js';
 
 /** Global so any feature module can use `SessionGuard`. */
 @Global()
 @Module({
-  controllers: [AuthController],
+  controllers: [AuthController, OAuthController],
   providers: [
     AuthService,
+    OAuthService,
     SessionsService,
     SessionGuard,
     RateLimitService,

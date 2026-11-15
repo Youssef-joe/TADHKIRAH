@@ -141,12 +141,11 @@ export class AuthService {
     return consumed.length ? email : null;
   }
 
-  /** Creates the account, profile and preferences in one transaction on first sign-in. */
-  private async findOrCreateUser(
-    email: string,
-    locale: Locale,
-    timeZone?: string,
-  ): Promise<VerifiedUser> {
+  /**
+   * Signs in a verified email: creates the account, profile and preferences in
+   * one transaction on first sign-in. Also used by Google / Apple sign-in.
+   */
+  async findOrCreateUser(email: string, locale: Locale, timeZone?: string): Promise<VerifiedUser> {
     return this.handle.db.transaction(async (tx) => {
       const [found] = await tx
         .select({ id: users.id, status: users.status })

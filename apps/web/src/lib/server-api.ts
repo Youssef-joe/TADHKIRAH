@@ -1,6 +1,6 @@
 import 'server-only';
 import { headers } from 'next/headers';
-import type { MeResponse } from '@tadhkirah/contracts';
+import type { MeResponse, OAuthProviderId } from '@tadhkirah/contracts';
 
 const API = process.env.API_INTERNAL_URL ?? 'http://localhost:4000';
 
@@ -24,4 +24,15 @@ export async function getEditorialRoles(): Promise<string[]> {
   const res = await fetch(`${API}/v1/admin/me`, { headers: { cookie }, cache: 'no-store' });
   if (!res.ok) return [];
   return ((await res.json()) as { roles: string[] }).roles;
+}
+
+/** Sign-in providers with credentials configured on the API (ACC-2). */
+export async function getOAuthProviders(): Promise<OAuthProviderId[]> {
+  try {
+    const res = await fetch(`${API}/v1/auth/providers`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return ((await res.json()) as { providers: OAuthProviderId[] }).providers;
+  } catch {
+    return []; // The email form still works.
+  }
 }

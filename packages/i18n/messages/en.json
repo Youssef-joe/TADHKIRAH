@@ -82,7 +82,16 @@
     "changeEmail": "Use a different email",
     "checkSpam": "Can't find it? Check your spam folder, or tap the link in the email.",
     "privacyNote": "We only ask for your email, and never share it.",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "continueGoogle": "Continue with Google",
+    "continueApple": "Sign in with Apple",
+    "orEmail": "or with your email",
+    "oauthError": {
+      "cancelled": "Sign-in was cancelled. You can try again, or use your email.",
+      "expired": "The sign-in took too long. Please try again.",
+      "unverified": "That account has no verified email. Please sign in with your email instead.",
+      "failed": "Couldn't sign you in. Please try again, or use your email."
+    }
   },
   "verify": {
     "verifying": "Signing you in…",
@@ -216,7 +225,11 @@
     "installTitle": "Install the app",
     "installBody": "Add Tadhkirah to your Home Screen to open it with one tap, use it offline, and receive reminders.",
     "installButton": "Install",
-    "installIos": "On iPhone: open the site in Safari, tap the Share button, then choose “Add to Home Screen”."
+    "installIos": "On iPhone: open the site in Safari, tap the Share button, then choose “Add to Home Screen”.",
+    "connected": "Connected accounts",
+    "connectedHint": "You can sign in with these, and always with your email.",
+    "connectedOn": "Connected {date}",
+    "disconnect": "Disconnect"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -586,6 +599,7 @@
     "account": "Account",
     "email": "Email",
     "since": "Created",
+    "linkedSignIn": "Sign-in with {provider}",
     "reflections": "Daily reflections",
     "worship": "Worship log",
     "excused": "Excused day",
@@ -797,7 +811,7 @@
       "title": "Privacy policy",
       "intro": "Tadhkirah is a personal companion for self-accountability, and what you write in it is a trust. This page explains plainly what we collect, why, how we protect it, and how you control it.",
       "s1_title": "What we collect",
-      "s1_body": "• Your email address, to sign you in (no password).\n• Your settings: your name if you add one, language, time zone and digit style.\n• An approximate location to calculate prayer times: we store coordinates rounded to about one kilometre, and we never track your location.\n• What you record: prayers and worship, Quran progress, daily reflections, weekly reviews and goals.\n• Reminder settings, and your notification subscription if you turn notifications on.\n• Signed-in devices: browser and operating system name, and last activity. We do not store IP addresses with your account.",
+      "s1_body": "• Your email address, to sign you in (no password). If you choose to sign in with Google or Apple, we receive from them only your email address and an account identifier: never your name, contacts or password.\n• Your settings: your name if you add one, language, time zone and digit style.\n• An approximate location to calculate prayer times: we store coordinates rounded to about one kilometre, and we never track your location.\n• What you record: prayers and worship, Quran progress, daily reflections, weekly reviews and goals.\n• Reminder settings, and your notification subscription if you turn notifications on.\n• Signed-in devices: browser and operating system name, and last activity. We do not store IP addresses with your account.",
       "s2_title": "How we protect your reflections",
       "s2_body": "Your private text (reflections, weekly reviews, goals, and your own questions and reminder titles) is encrypted with a key that is yours alone before it is stored. This protects it if the database ever leaks.\n\nTo be honest about it: this is server-side encryption, not end-to-end encryption; the service decrypts your text to show it to you. No one on the team reads it, and it never appears in logs or analytics.",
       "s3_title": "What we never do",
@@ -805,7 +819,7 @@
       "s4_title": "Cookies and analytics",
       "s4_body": "We use one essential cookie to keep you signed in. On public pages only (the home and sign-in pages) we count visits with Vercel Web Analytics, which uses no cookies and records only the page path. There are no analytics inside the app once you are signed in.",
       "s5_title": "Who processes data on our behalf",
-      "s5_body": "• Vercel: hosts the app (Frankfurt, Germany).\n• Neon: the database (Frankfurt, Germany).\n• Google (Gmail): sends your sign-in code emails.\n• Your browser's push service (Google, Apple or Mozilla): delivers reminders, encrypted, to your device if you turn them on.\n• Cloudflare: triggers the reminder schedule; none of your data passes through it.\n\nThese providers handle technical data such as IP addresses to deliver the service and keep it only briefly. Our abuse protection keeps an IP address for no more than one day.",
+      "s5_body": "• Vercel: hosts the app (Frankfurt, Germany).\n• Neon: the database (Frankfurt, Germany).\n• Google (Gmail): sends your sign-in code emails.\n• Google and Apple: confirm who you are, only if you choose to sign in with them.\n• Your browser's push service (Google, Apple or Mozilla): delivers reminders, encrypted, to your device if you turn them on.\n• Cloudflare: triggers the reminder schedule; none of your data passes through it.\n\nThese providers handle technical data such as IP addresses to deliver the service and keep it only briefly. Our abuse protection keeps an IP address for no more than one day.",
       "s6_title": "How long we keep data",
       "s6_body": "• Your data: until you delete it or your account.\n• Notification history: 90 days; reminders already sent: 30 days.\n• Device records: 90 days after they expire.\n• The database provider's backups: expire within 35 days at most.",
       "s7_title": "Your rights and controls",

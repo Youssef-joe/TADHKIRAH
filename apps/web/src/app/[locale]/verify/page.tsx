@@ -8,7 +8,7 @@ import { api } from '@/lib/api';
 import { clearUserData } from '@/lib/outbox';
 
 /**
- * Magic-link landing page. The token is in the URL fragment (#token=…), which
+ * Magic-link landing page, and the landing after Google / Apple sign-in (#signed-in). The token is in the URL fragment (#token=…), which
  * never reaches any server or log. We read it here, remove it from the address
  * bar, and exchange it for a session.
  */
@@ -21,8 +21,14 @@ export default function VerifyPage() {
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    const token = new URLSearchParams(window.location.hash.slice(1)).get('token');
+    const hash = window.location.hash.slice(1);
     history.replaceState(null, '', window.location.pathname);
+    // Back from Google / Apple: the session cookie is already set.
+    if (hash === 'signed-in') {
+      void clearUserData().then(() => window.location.replace(`/${locale}/app/today`));
+      return;
+    }
+    const token = new URLSearchParams(hash).get('token');
     if (!token) {
       setFailed(true);
       return;

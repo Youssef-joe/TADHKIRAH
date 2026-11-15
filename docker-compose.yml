@@ -19,6 +19,13 @@ x-api-env: &api-env
   # Content review (ADR-003): who gets every editorial role on sign-in, and the two-person rule.
   BOOTSTRAP_ADMIN_EMAILS: ${BOOTSTRAP_ADMIN_EMAILS:-}
   CONTENT_TWO_PERSON_RULE: ${CONTENT_TWO_PERSON_RULE:-true}
+  # Sign in with Google / Apple (optional). Redirect URI: ${PUBLIC_WEB_URL}/v1/auth/oauth/<google|apple>/callback
+  GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+  GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+  APPLE_CLIENT_ID: ${APPLE_CLIENT_ID:-}
+  APPLE_TEAM_ID: ${APPLE_TEAM_ID:-}
+  APPLE_KEY_ID: ${APPLE_KEY_ID:-}
+  APPLE_PRIVATE_KEY: ${APPLE_PRIVATE_KEY:-}
   SMTP_URL: ${SMTP_URL:?set SMTP_URL (smtp://user:pass@host:587)}
   MAIL_FROM: ${MAIL_FROM:-Tadhkirah <no-reply@example.com>}
   ALLOW_INSECURE_HTTP: ${ALLOW_INSECURE_HTTP:-false}

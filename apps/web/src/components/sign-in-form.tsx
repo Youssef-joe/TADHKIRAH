@@ -2,13 +2,25 @@
 
 import { useState, type FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import type { EmailVerifyResponse } from '@tadhkirah/contracts';
+import type { EmailVerifyResponse, OAuthProviderId } from '@tadhkirah/contracts';
 import { api, errorKey } from '@/lib/api';
 import { Button, Field, Input, Status } from './ui/primitives';
 import { clearUserData } from '@/lib/outbox';
+import { OAuthButtons } from './oauth-buttons';
 
-/** Two steps: email → 6-digit code. The emailed magic link is an alternative to the code. */
-export function SignInForm() {
+const OAUTH_ERRORS = ['cancelled', 'expired', 'unverified', 'failed'] as const;
+
+/**
+ * Two steps: email → 6-digit code. The emailed magic link is an alternative to
+ * the code, and Google / Apple an alternative to both when configured.
+ */
+export function SignInForm({
+  providers = [],
+  oauthError,
+}: {
+  providers?: OAuthProviderId[];
+  oauthError?: string;
+}) {
   const t = useTranslations('auth');
   const te = useTranslations('errors');
   const locale = useLocale() as 'ar' | 'en';
@@ -16,7 +28,10 @@ export function SignInForm() {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => {
+    const reason = OAUTH_ERRORS.find((r) => r === oauthError);
+    return reason ? t(`oauthError.${reason}`) : null;
+  });
   const [notice, setNotice] = useState<string | null>(null);
 
   async function sendCode(e?: FormEvent) {
@@ -61,6 +76,7 @@ export function SignInForm() {
   if (step === 'email') {
     return (
       <form onSubmit={sendCode} className="flex flex-col gap-4" noValidate>
+        <OAuthButtons providers={providers} />
         <Field label={t('emailLabel')} htmlFor="email">
           <Input
             id="email"

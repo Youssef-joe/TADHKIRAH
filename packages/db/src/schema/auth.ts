@@ -18,6 +18,7 @@ export const auth = pgSchema('auth');
 
 export const userStatus = auth.enum('user_status', ['active', 'pending_deletion']);
 export const sessionKind = auth.enum('session_kind', ['cookie', 'bearer']);
+export const oauthProvider = auth.enum('oauth_provider', ['google', 'apple']);
 
 const timestamps = {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -95,4 +96,32 @@ export const rateLimits = auth.table(
     count: integer('count').notNull().default(0),
   },
   (t) => [primaryKey({ columns: [t.key, t.windowStart] })],
+);
+
+/**
+ * Google / Apple accounts linked to a user (ACC-2). Matched on the provider's
+ * stable subject id, not the email, so a changed or relay email still signs in
+ * to the same account. Only the email and the subject are kept: no name, no
+ * picture, no provider tokens.
+ */
+export const oauthIdentities = auth.table(
+  'oauth_identities',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`uuidv7()`),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    provider: oauthProvider('provider').notNull(),
+    subject: text('subject').notNull(),
+    /** The email the provider reported when the account was linked. */
+    email: text('email'),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamps.createdAt,
+  },
+  (t) => [
+    uniqueIndex('oauth_identities_provider_subject_uq').on(t.provider, t.subject),
+    index('oauth_identities_user_idx').on(t.userId),
+  ],
 );

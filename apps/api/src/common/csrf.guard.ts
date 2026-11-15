@@ -1,4 +1,11 @@
-import { Inject, Injectable, type CanActivate, type ExecutionContext } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  SetMetadata,
+  type CanActivate,
+  type ExecutionContext,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { CSRF_HEADER } from '@tadhkirah/contracts';
 import { ENV } from '../config/config.module.js';
 import type { Env } from '../config/env.js';
@@ -6,6 +13,14 @@ import { sessionCookieName } from '../auth/session-cookie.js';
 import { AppError, readCookie, type AppRequest } from './http.js';
 
 const SAFE = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+const SKIP_CSRF = 'tadhkirah:skip-csrf';
+/**
+ * For endpoints a third party POSTs to with a top-level navigation (Sign in with
+ * Apple's form_post callback). They must carry their own proof, such as a signed
+ * state bound to a cookie, and must not act on the session cookie.
+ */
+export const SkipCsrf = () => SetMetadata(SKIP_CSRF, true);
 
 /**
  * CSRF protection for cookie-authenticated requests (Architecture §6). It applies
@@ -19,11 +34,15 @@ const SAFE = new Set(['GET', 'HEAD', 'OPTIONS']);
  */
 @Injectable()
 export class CsrfGuard implements CanActivate {
-  constructor(@Inject(ENV) private readonly env: Env) {}
+  constructor(
+    @Inject(ENV) private readonly env: Env,
+    private readonly reflector: Reflector,
+  ) {}
 
   canActivate(ctx: ExecutionContext): boolean {
     const req = ctx.switchToHttp().getRequest<AppRequest>();
     if (SAFE.has(req.method)) return true;
+    if (this.reflector.get<boolean>(SKIP_CSRF, ctx.getHandler())) return true;
 
     const origin = req.headers.origin;
     if (origin && !this.env.WEB_ORIGINS.includes(origin)) {

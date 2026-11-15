@@ -43,6 +43,10 @@ export function toMarkdown(data: AccountExport, locale: Locale): string {
   out.push(
     `- ${t('exportDoc.email')}: ${data.account.email}`,
     `- ${t('exportDoc.since')}: ${localDay(data.account.createdAt)}`,
+    ...data.account.linkedSignIns.map(
+      (i) =>
+        `- ${t('exportDoc.linkedSignIn', { provider: i.provider === 'google' ? 'Google' : 'Apple' })}: ${i.email ?? '—'}`,
+    ),
   );
 
   // Daily reflections, newest first.

@@ -6,7 +6,7 @@ import { createHmac, randomBytes, randomInt, timingSafeEqual } from 'node:crypto
  * to sign in. Each purpose uses a different prefix, so one kind of value can't be
  * substituted for another.
  */
-export type SecretPurpose = 'session' | 'magic' | 'code' | 'ratelimit';
+export type SecretPurpose = 'session' | 'magic' | 'code' | 'ratelimit' | 'oauth';
 
 export function hmac(secret: string, purpose: SecretPurpose, value: string): Buffer {
   return createHmac('sha256', secret).update(`${purpose}:${value}`).digest();

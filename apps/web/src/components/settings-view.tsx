@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import type { Preferences, Profile, SessionInfo } from '@tadhkirah/contracts';
+import type { LinkedIdentity, Preferences, Profile, SessionInfo } from '@tadhkirah/contracts';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { api, errorKey } from '@/lib/api';
 import { useMe } from './me-context';
@@ -281,6 +281,61 @@ function SessionsCard() {
   );
 }
 
+/** Google / Apple accounts that can sign in to this account (ACC-2). Hidden when there are none. */
+function ConnectedAccountsCard() {
+  const t = useTranslations('settings');
+  const te = useTranslations('errors');
+  const locale = useLocale();
+  const { me } = useMe();
+  const [items, setItems] = useState<LinkedIdentity[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api<LinkedIdentity[]>('/auth/identities').then(setItems, () => undefined);
+  }, []);
+  if (!items.length && !error) return null;
+
+  const fmt = new Intl.DateTimeFormat(`${locale}-u-nu-${me.profile.digits}`, {
+    dateStyle: 'medium',
+    timeZone: me.profile.timezone,
+  });
+  async function unlink(id: string) {
+    try {
+      await api(`/auth/identities/${id}`, { method: 'DELETE' });
+      setItems((xs) => xs.filter((x) => x.id !== id));
+    } catch (err) {
+      setError(te(errorKey(err)));
+    }
+  }
+
+  return (
+    <Card title={t('connected')}>
+      <p className="mb-4 text-sm text-muted">{t('connectedHint')}</p>
+      {error && <Status tone="error">{error}</Status>}
+      <ul className="flex flex-col divide-y divide-border">
+        {items.map((i) => (
+          <li key={i.id} className="flex items-center justify-between gap-4 py-3">
+            <div>
+              <p className="font-medium">{i.provider === 'google' ? 'Google' : 'Apple'}</p>
+              <p className="text-sm text-muted">
+                {i.email && (
+                  <bdi dir="ltr" className="me-2">
+                    {i.email}
+                  </bdi>
+                )}
+                {t('connectedOn', { date: fmt.format(new Date(i.createdAt)) })}
+              </p>
+            </div>
+            <Button variant="ghost" onClick={() => unlink(i.id)}>
+              {t('disconnect')}
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
+
 export function SettingsView() {
   const t = useTranslations('settings');
   return (
@@ -293,6 +348,7 @@ export function SettingsView() {
       </div>
       <PreferencesCard />
       <SessionsCard />
+      <ConnectedAccountsCard />
       <InstallCard />
       <ReviewDeskCard />
       <PrivacyCard />

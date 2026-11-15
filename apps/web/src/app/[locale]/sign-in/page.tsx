@@ -5,14 +5,16 @@ import { SignInForm } from '@/components/sign-in-form';
 import { GeometricPattern } from '@/components/ui/art';
 import { Icon } from '@/components/ui/icons';
 import { Link } from '@/i18n/navigation';
-import { getMe } from '@/lib/server-api';
+import { getMe, getOAuthProviders } from '@/lib/server-api';
 
-export default async function SignInPage({ params }: PageProps<'/[locale]'>) {
+export default async function SignInPage({ params, searchParams }: PageProps<'/[locale]'>) {
   const { locale } = await params;
+  const { oauth } = await searchParams;
   setRequestLocale(locale);
   if (await getMe()) redirect(`/${locale}/app/today`);
   const t = await getTranslations('auth');
   const tl = await getTranslations('legal');
+  const providers = await getOAuthProviders();
 
   return (
     <div className="relative min-h-dvh">
@@ -35,7 +37,10 @@ export default async function SignInPage({ params }: PageProps<'/[locale]'>) {
           </span>
           <h1 className="font-display text-3xl font-bold text-primary">{t('title')}</h1>
           <p className="mt-2 mb-6 text-muted">{t('subtitle')}</p>
-          <SignInForm />
+          <SignInForm
+            providers={providers}
+            oauthError={typeof oauth === 'string' ? oauth : undefined}
+          />
         </div>
         <div className="flex flex-col gap-2 text-center text-xs text-muted">
           <p>{tl('signInNote')}</p>

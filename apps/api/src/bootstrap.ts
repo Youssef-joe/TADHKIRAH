@@ -17,6 +17,8 @@ export async function createApiApp(env: Env): Promise<INestApplication> {
   app.set('trust proxy', env.TRUST_PROXY === 'true' ? true : env.TRUST_PROXY);
   app.disable('x-powered-by');
   app.useBodyParser('json', { limit: '100kb' });
+  // Sign in with Apple returns with an HTML form post.
+  app.useBodyParser('urlencoded', { limit: '20kb', extended: false });
   app.setGlobalPrefix(API_VERSION, {
     exclude: [
       { path: 'healthz', method: RequestMethod.GET },

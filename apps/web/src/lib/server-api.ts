@@ -16,3 +16,12 @@ export async function getMe(): Promise<MeResponse | null> {
   if (!res.ok) throw new Error(`GET /v1/me failed: ${res.status}`);
   return (await res.json()) as MeResponse;
 }
+
+/** The visitor's editorial roles (ADR-003); empty when signed out or not on the team. */
+export async function getEditorialRoles(): Promise<string[]> {
+  const cookie = (await headers()).get('cookie');
+  if (!cookie) return [];
+  const res = await fetch(`${API}/v1/admin/me`, { headers: { cookie }, cache: 'no-store' });
+  if (!res.ok) return [];
+  return ((await res.json()) as { roles: string[] }).roles;
+}

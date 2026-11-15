@@ -11,7 +11,11 @@ export const TEST_ORIGIN = 'http://localhost:3000';
 export const TEST_MASTER_KEY = Buffer.alloc(32, 42).toString('base64');
 export const TEST_CRON_SECRET = 'test-cron-secret-1234567890';
 
-export async function startApp(): Promise<{ app: INestApplication; mailer: MemoryMailer }> {
+export const TEST_OWNER_EMAIL = 'owner@example.com';
+
+export async function startApp(
+  extra: Record<string, string> = {},
+): Promise<{ app: INestApplication; mailer: MemoryMailer }> {
   const env = loadEnv({
     DATABASE_URL: inject('databaseUrl'),
     NODE_ENV: 'test',
@@ -22,6 +26,8 @@ export async function startApp(): Promise<{ app: INestApplication; mailer: Memor
     CRON_SECRET: TEST_CRON_SECRET,
     MAIL_TRANSPORT: 'memory',
     WEB_ORIGINS: TEST_ORIGIN,
+    BOOTSTRAP_ADMIN_EMAILS: TEST_OWNER_EMAIL,
+    ...extra,
   });
   const app = await createApiApp(env);
   await app.init();

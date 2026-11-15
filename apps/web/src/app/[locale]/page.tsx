@@ -3,6 +3,7 @@ import { AnimatedHeadline } from '@/components/landing/animated-headline';
 import { DayTimeline } from '@/components/landing/day-timeline';
 import { FeatureArt } from '@/components/landing/feature-art';
 import { PhoneMockup } from '@/components/landing/phone-mockup';
+import { LegalLinks } from '@/components/legal-page';
 import { HeroSky } from '@/components/sky/hero-sky';
 import { TodayDate } from '@/components/today-date';
 import { GeometricPattern, Ornament } from '@/components/ui/art';
@@ -215,6 +216,7 @@ export default async function Landing({ params }: PageProps<'/[locale]'>) {
           <p className="font-display text-lg text-primary">{ta('name')}</p>
           <p>{ta('tagline')}</p>
           <p>{t('footer')}</p>
+          <LegalLinks />
         </div>
       </footer>
     </div>

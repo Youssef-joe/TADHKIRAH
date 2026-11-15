@@ -3,11 +3,13 @@ import { expect, test, type Page } from '@playwright/test';
 import { LOCALES, signedInContext } from './helpers';
 
 /** Accessibility (M8): no serious or critical axe violations, in both languages (WCAG 2.1 AA rules). */
-const PUBLIC = ['', '/sign-in'];
+const PUBLIC = ['', '/sign-in', '/privacy', '/terms'];
 const APP = [
   '/app/today',
   '/app/worship',
   '/app/reflection',
+  '/app/sunnah',
+  '/app/times',
   '/app/reports',
   '/app/inbox',
   '/app/settings',

@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { api, errorKey } from '@/lib/api';
 import { useMe } from './me-context';
 import { Button, Card, Field, Input, Status } from './ui/primitives';
@@ -10,6 +11,7 @@ import { clearUserData } from '@/lib/outbox';
 /** Export (ACC-5) and account deletion (ACC-6). */
 export function PrivacyCard() {
   const t = useTranslations('settings');
+  const tl = useTranslations('legal');
   const te = useTranslations('errors');
   const locale = useLocale();
   const { me } = useMe();
@@ -37,7 +39,15 @@ export function PrivacyCard() {
     'inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-4 font-medium hover:bg-bg';
   return (
     <Card title={t('privacy')}>
-      <p className="mb-5 text-sm text-muted">{t('privacyBody')}</p>
+      <p className="mb-2 text-sm text-muted">{t('privacyBody')}</p>
+      <p className="mb-5 flex gap-4 text-sm">
+        <Link href="/privacy" className="text-primary underline-offset-4 hover:underline">
+          {tl('privacyLink')}
+        </Link>
+        <Link href="/terms" className="text-primary underline-offset-4 hover:underline">
+          {tl('termsLink')}
+        </Link>
+      </p>
 
       <h3 className="font-medium">{t('exportTitle')}</h3>
       <p className="mb-3 text-sm text-muted">{t('exportHint')}</p>

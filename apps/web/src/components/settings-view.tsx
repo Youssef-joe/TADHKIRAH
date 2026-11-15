@@ -8,6 +8,7 @@ import { api, errorKey } from '@/lib/api';
 import { useMe } from './me-context';
 import { InstallCard } from './install-card';
 import { PrivacyCard } from './privacy-card';
+import { ReviewDeskCard } from './review-desk-card';
 import { PrayerSettingsCard } from './prayer/prayer-settings-card';
 import { RemindersCard } from './reminders/reminders-card';
 import { Button, Card, Field, Input, Select, Status } from './ui/primitives';
@@ -293,6 +294,7 @@ export function SettingsView() {
       <PreferencesCard />
       <SessionsCard />
       <InstallCard />
+      <ReviewDeskCard />
       <PrivacyCard />
     </div>
   );

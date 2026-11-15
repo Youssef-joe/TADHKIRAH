@@ -58,6 +58,13 @@ export const EnvSchema = z
     VAPID_SUBJECT: optional(z.string()),
     /** `memory` records pushes for tests. */
     PUSH_TRANSPORT: z.enum(['webpush', 'memory']).default('webpush'),
+    /** ADR-003: verified users with these emails get admin, editor, reviewer and publisher on sign-in. */
+    BOOTSTRAP_ADMIN_EMAILS: csv(''),
+    /** ADR-003: reviewer ≠ author. A team of one may set false; such approvals are flagged. */
+    CONTENT_TWO_PERSON_RULE: z
+      .enum(['true', 'false'])
+      .default('true')
+      .transform((v) => v === 'true'),
     /** Shared secret for scheduled jobs (Vercel Cron sends it as `Authorization: Bearer …`). */
     CRON_SECRET: optional(z.string().min(16)),
   })

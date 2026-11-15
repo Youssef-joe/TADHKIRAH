@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
+import { LegalLinks } from '@/components/legal-page';
 import { SignInForm } from '@/components/sign-in-form';
 import { GeometricPattern } from '@/components/ui/art';
 import { Icon } from '@/components/ui/icons';
@@ -11,6 +12,7 @@ export default async function SignInPage({ params }: PageProps<'/[locale]'>) {
   setRequestLocale(locale);
   if (await getMe()) redirect(`/${locale}/app/today`);
   const t = await getTranslations('auth');
+  const tl = await getTranslations('legal');
 
   return (
     <div className="relative min-h-dvh">
@@ -34,6 +36,10 @@ export default async function SignInPage({ params }: PageProps<'/[locale]'>) {
           <h1 className="font-display text-3xl font-bold text-primary">{t('title')}</h1>
           <p className="mt-2 mb-6 text-muted">{t('subtitle')}</p>
           <SignInForm />
+        </div>
+        <div className="flex flex-col gap-2 text-center text-xs text-muted">
+          <p>{tl('signInNote')}</p>
+          <LegalLinks />
         </div>
       </main>
     </div>

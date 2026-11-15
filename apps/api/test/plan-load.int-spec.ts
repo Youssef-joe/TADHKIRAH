@@ -1,4 +1,5 @@
 import type { INestApplication } from '@nestjs/common';
+import { appendFileSync } from 'node:fs';
 import { inject } from 'vitest';
 import { createDb, type DbHandle } from '@tadhkirah/db';
 import { DispatcherService } from '../src/reminders/dispatcher.service.js';
@@ -13,6 +14,9 @@ import { startApp } from './helpers.js';
  */
 const N = Number(process.env.LOAD_USERS ?? 0);
 const BATCH = 200;
+/** Live progress (vitest buffers console output until the end). */
+const progress = (line: string) =>
+  process.env.LOAD_LOG && appendFileSync(process.env.LOAD_LOG, `${line}\n`);
 
 describe.skipIf(!N)(`reminder load: ${N} users`, () => {
   let app: INestApplication;
@@ -38,6 +42,9 @@ describe.skipIf(!N)(`reminder load: ${N} users`, () => {
       const r = await planner.planDue(now, BATCH);
       if (!r.users) break;
       batches.push(performance.now() - t);
+      progress(
+        `${label} batch ${batches.length}: ${Math.round(performance.now() - t)}ms users=${r.users} inserted=${r.inserted}`,
+      );
       users += r.users;
       inserted += r.inserted;
     }
@@ -104,6 +111,9 @@ describe.skipIf(!N)(`reminder load: ${N} users`, () => {
       const r = await dispatcher.dispatch();
       if (!r.sent) break;
       sent += r.sent;
+      progress(
+        `dispatch ${i}: sent=${r.sent} expired=${r.expired} ${Math.round(performance.now() - t)}ms`,
+      );
     }
     const ms = performance.now() - t;
     console.log(

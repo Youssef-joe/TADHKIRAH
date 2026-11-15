@@ -58,6 +58,10 @@ const editorial = {
   supersedesId: uuid('supersedes_id'),
   createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
   updatedBy: uuid('updated_by').references(() => users.id, { onDelete: 'set null' }),
+  /** Re-review cycle: when a reviewer last confirmed the published item. */
+  lastVerifiedAt: timestamp('last_verified_at', { withTimezone: true }),
+  /** When it's next due for re-review; a problem report brings it forward to now. */
+  reviewDueAt: timestamp('review_due_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
@@ -259,6 +263,14 @@ export const issueReports = content.table('issue_reports', {
   resolvedAt: timestamp('resolved_at', { withTimezone: true }),
   resolvedBy: uuid('resolved_by').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** When each reviewer last got the re-review digest email (at most daily). */
+export const reviewerDigests = content.table('reviewer_digests', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  lastSentAt: timestamp('last_sent_at', { withTimezone: true }).notNull(),
 });
 
 /** Editorial roles (ADR-003). Granted by an admin, never self-service. */

@@ -12,6 +12,7 @@ import type { Env } from '../config/env.js';
 import { DB } from '../db/db.module.js';
 import { DispatcherService } from '../reminders/dispatcher.service.js';
 import { PlannerService } from '../reminders/planner.service.js';
+import { ReviewDigestService } from '../content/review-digest.service.js';
 import { purgeExpired } from './purge.js';
 
 export const QUEUES = {
@@ -35,6 +36,7 @@ export class JobsService implements OnApplicationBootstrap, OnApplicationShutdow
     @Inject(DB) private readonly handle: DbHandle,
     private readonly planner: PlannerService,
     private readonly dispatcher: DispatcherService,
+    private readonly reviewDigest: ReviewDigestService,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -62,6 +64,9 @@ export class JobsService implements OnApplicationBootstrap, OnApplicationShutdow
     await boss.schedule(QUEUES.plan, '*/5 * * * *', null, { tz: 'UTC' });
     await boss.work(QUEUES.plan, async () => {
       this.logger.log({ result: await this.planner.planDue() }, 'planned reminders');
+      await this.reviewDigest
+        .remindReviewers()
+        .catch((err: Error) => this.logger.error(`review digest: ${err.message}`));
     });
     await boss.createQueue(QUEUES.dispatch);
     await boss.schedule(QUEUES.dispatch, '* * * * *', null, { tz: 'UTC' });

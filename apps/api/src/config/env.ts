@@ -88,6 +88,8 @@ export const EnvSchema = z
     /** OpenID issuers. Change only to point tests at a stand-in provider. */
     OAUTH_GOOGLE_ISSUER: z.url().default('https://accounts.google.com'),
     OAUTH_APPLE_ISSUER: z.url().default('https://appleid.apple.com'),
+    /** Re-review cycle: days after verification before a published item is due for review again. */
+    CONTENT_REVIEW_INTERVAL_DAYS: z.coerce.number().int().min(30).max(1825).default(365),
     /** Shared secret for scheduled jobs (Vercel Cron sends it as `Authorization: Bearer …`). */
     CRON_SECRET: optional(z.string().min(16)),
   })

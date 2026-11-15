@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation';
 import { api, errorKey } from '@/lib/api';
 import { Button, Card, Status } from '../ui/primitives';
 import { STATUSES, TYPES, type AdminType } from './shared';
+import type { QueueItem } from './review-queue';
 import { StatusBadge } from './status-badge';
 
 type Counts = Record<AdminType, Record<string, number>>;
@@ -22,6 +23,8 @@ export function AdminDashboard({
   const [counts, setCounts] = useState<Counts | null>(null);
   const [status, setStatus] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [queue, setQueue] = useState<QueueItem[] | null>(null);
+  const canReview = roles.some((r) => r !== 'editor');
 
   async function load() {
     const out = {} as Counts;
@@ -36,7 +39,8 @@ export function AdminDashboard({
   }
   useEffect(() => {
     void load();
-  }, []);
+    if (canReview) api<QueueItem[]>('/admin/review-queue').then(setQueue, () => undefined);
+  }, [canReview]);
 
   async function importCandidates() {
     setBusy(true);
@@ -62,6 +66,20 @@ export function AdminDashboard({
         <p className="rounded-lg border border-accent/40 bg-accent/5 p-4 text-sm text-accent">
           {t('singleReviewerOn')}
         </p>
+      )}
+      {queue && queue.some((q) => q.state !== 'due_soon' || q.openReports) && (
+        <Link
+          href="/admin/review"
+          className="flex items-center justify-between gap-3 rounded-lg border border-accent/40 bg-accent/5 p-4 text-sm hover:border-accent"
+        >
+          <span>
+            {t('reviewWaiting', {
+              count: queue.filter((q) => q.state === 'due' || q.state === 'overdue').length,
+              reports: queue.reduce((n, q) => n + q.openReports, 0),
+            })}
+          </span>
+          <span className="font-medium text-accent">{t('nav_review')}</span>
+        </Link>
       )}
       <div className="grid gap-4 sm:grid-cols-3">
         {TYPES.map((type) => (

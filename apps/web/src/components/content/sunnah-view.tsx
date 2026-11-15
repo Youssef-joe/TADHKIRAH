@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import type { PublicSunnah } from '@tadhkirah/contracts';
 import { api } from '@/lib/api';
 import { Icon } from '../ui/icons';
-import { Differences, HadithEvidence, ReportProblem } from './evidence';
+import { Differences, HadithEvidence, LastVerified, ReportProblem } from './evidence';
 
 const ORDER: PublicSunnah['trigger'][] = [
   'on_waking',
@@ -81,6 +81,7 @@ export function SunnahView() {
                   <HadithEvidence key={h.id} h={h} />
                 ))}
               </div>
+              <LastVerified at={s.lastVerifiedAt} />
               <ReportProblem subjectType="sunnah" subjectId={s.id} />
             </article>
           ))}

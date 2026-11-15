@@ -115,6 +115,13 @@ export class ContentAdminController {
     await this.roles.change(a.userId, body.email, body.role, body.grant);
   }
 
+  /** The verification loop: published items due for re-review, or reported. */
+  @Get('review-queue')
+  async reviewQueue(@CurrentAuth() a: AuthContext) {
+    await this.roles.require(a.userId, 'reviewer', 'publisher', 'admin');
+    return this.admin.reviewQueue();
+  }
+
   @Get('issue-reports')
   async issues(@CurrentAuth() a: AuthContext) {
     await this.roles.require(a.userId, 'reviewer', 'publisher', 'admin');

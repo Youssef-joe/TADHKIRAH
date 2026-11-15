@@ -87,6 +87,15 @@ export function HadithEvidence({ h }: { h: PublicHadith }) {
   );
 }
 
+/** When a reviewer last checked this item (the periodic re-review). */
+export function LastVerified({ at }: { at: string | null }) {
+  const t = useTranslations('content');
+  const locale = useLocale();
+  if (!at) return null;
+  const date = new Intl.DateTimeFormat(locale, { dateStyle: 'long' }).format(new Date(at));
+  return <p className="text-xs text-muted">{t('lastVerified', { date })}</p>;
+}
+
 /** "Report a problem with this source" → the editorial queue. */
 export function ReportProblem({
   subjectType,

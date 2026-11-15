@@ -6,6 +6,7 @@ import { useRouter } from '@/i18n/navigation';
 import { api, errorKey } from '@/lib/api';
 import { Button, Card, Field, Input, Select, Status } from '../ui/primitives';
 import { adminErrorKey, GRADES, TRIGGERS, WINDOWS, type AdminType } from './shared';
+import { REVIEW_STATE_STYLE, type QueueItem } from './review-queue';
 import { StatusBadge } from './status-badge';
 
 type Item = Record<string, unknown> & { id: string; status: string; revision: number };
@@ -40,6 +41,8 @@ type Detail = {
     revision: number;
   }[];
   problems: { problems: string[]; gate: string | null };
+  openReports: { id: string; message: string; createdAt: string }[];
+  reviewState: QueueItem['state'] | null;
   actions: string[];
   editable: boolean;
 };
@@ -270,6 +273,7 @@ const nextStatus = (a: string) =>
     approve: 'approved',
     archive: 'archived',
     reopen: 'draft',
+    reconfirm: 'approved',
   })[a] ?? 'draft';
 
 function FieldFor({
@@ -716,10 +720,47 @@ function Workflow({
   onAction: (action: string, notes: string | null) => Promise<void>;
 }) {
   const t = useTranslations('admin');
+  const locale = useLocale();
   const [notes, setNotes] = useState('');
   const { problems, gate } = d.problems;
+  const fmt = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' });
+  const due = d.item.reviewDueAt as string | null;
+  const verified = d.item.lastVerifiedAt as string | null;
   return (
     <Card title={t('workflow')}>
+      {d.item.status === 'approved' && d.reviewState && (
+        <div className="mb-4 flex flex-col gap-2 rounded-lg border border-border p-3 text-sm">
+          <p className="flex flex-wrap items-center gap-2">
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${REVIEW_STATE_STYLE[d.reviewState]}`}
+            >
+              {t(`reviewState_${d.reviewState}`)}
+            </span>
+            <span className="text-muted">
+              {due
+                ? t('reviewDue', { date: fmt.format(new Date(due)) })
+                : t('reviewNeverScheduled')}
+              {verified && ` · ${t('lastVerified', { date: fmt.format(new Date(verified)) })}`}
+            </span>
+          </p>
+          {d.actions.includes('reconfirm') && <p className="text-muted">{t('reconfirmHint')}</p>}
+        </div>
+      )}
+      {d.openReports.length > 0 && (
+        <div className="mb-4 rounded-lg border border-danger/30 bg-danger/5 p-3 text-sm">
+          <p className="mb-2 font-medium text-danger">
+            {t('reviewReports', { count: d.openReports.length })}
+          </p>
+          <ul className="flex flex-col gap-2">
+            {d.openReports.map((r) => (
+              <li key={r.id} className="whitespace-pre-line">
+                <span className="text-muted">{fmt.format(new Date(r.createdAt))}: </span>
+                {r.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {d.item.status === 'draft' && problems.length > 0 && (
         <div className="mb-4 rounded-lg border border-accent/40 bg-accent/5 p-3 text-sm">
           <p className="mb-1 font-medium">{t('problems')}</p>

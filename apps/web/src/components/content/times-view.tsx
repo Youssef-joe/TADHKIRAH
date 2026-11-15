@@ -13,7 +13,7 @@ import { api } from '@/lib/api';
 import { timeFormatter } from '@/lib/format';
 import { useMe } from '../me-context';
 import { Icon } from '../ui/icons';
-import { Differences, HadithEvidence, ReportProblem } from './evidence';
+import { Differences, HadithEvidence, LastVerified, ReportProblem } from './evidence';
 
 /**
  * Times of acceptance (Module C): each published occasion with its period for
@@ -133,6 +133,7 @@ export function TimesView() {
               <HadithEvidence key={h.id} h={h} />
             ))}
           </div>
+          <LastVerified at={o.lastVerifiedAt} />
           <ReportProblem subjectType="occasion" subjectId={o.id} />
         </article>
       ))}

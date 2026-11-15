@@ -47,6 +47,7 @@ export class PublicContentService {
       instructionsEn: (i.instructions_en as string | null) ?? null,
       classification: i.classification as PublicSunnah['classification'],
       trigger: i.trigger as PublicSunnah['trigger'],
+      lastVerifiedAt: toIso(i.last_verified_at),
       hadiths: evidence.hadiths.get(String(i.id)) ?? [],
       differences: evidence.differences.get(String(i.id)) ?? [],
     }));
@@ -73,6 +74,7 @@ export class PublicContentService {
       window: i.window as PublicOccasion['window'],
       evidenceType: i.evidence_type as PublicOccasion['evidenceType'],
       schedulable: Boolean(i.schedulable),
+      lastVerifiedAt: toIso(i.last_verified_at),
       hadiths: evidence.hadiths.get(String(i.id)) ?? [],
       differences: evidence.differences.get(String(i.id)) ?? [],
     }));
@@ -177,8 +179,17 @@ export class PublicContentService {
     await this.handle.db
       .insert(schema.issueReports)
       .values({ subjectType, subjectId, message, reportedBy: userId });
+    // A report makes the item due for re-review now (it stays published meanwhile).
+    const table = { hadith: 'hadiths', sunnah: 'sunnahs', occasion: 'supplication_occasions' }[
+      subjectType
+    ];
+    await this.handle.db.execute(
+      sql`update ${sql.raw(`content.${table}`)} set review_due_at = least(coalesce(review_due_at, now()), now()) where id = ${subjectId} and status = 'approved'`,
+    );
   }
 }
+
+const toIso = (v: unknown): string | null => (v ? new Date(v as string).toISOString() : null);
 
 function toDifference(d: Row): PublicDifference {
   return {

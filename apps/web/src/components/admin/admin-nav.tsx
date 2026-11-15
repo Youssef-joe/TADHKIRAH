@@ -11,7 +11,12 @@ export function AdminNav({ roles }: { roles: string[] }) {
     { href: '/admin/hadiths', key: 'nav_hadiths' },
     { href: '/admin/sunnahs', key: 'nav_sunnahs' },
     { href: '/admin/occasions', key: 'nav_occasions' },
-    ...(roles.some((r) => r !== 'editor') ? [{ href: '/admin/reports', key: 'nav_reports' }] : []),
+    ...(roles.some((r) => r !== 'editor')
+      ? [
+          { href: '/admin/review', key: 'nav_review' },
+          { href: '/admin/reports', key: 'nav_reports' },
+        ]
+      : []),
     ...(roles.includes('admin') ? [{ href: '/admin/team', key: 'nav_team' }] : []),
   ] as const;
   const active = (href: string) =>

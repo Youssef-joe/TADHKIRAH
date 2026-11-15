@@ -666,7 +666,8 @@
     "timing_fridays_only": "On Fridays only",
     "timing_after_adhans": "After each adhan, until the iqamah at your mosque:",
     "timing_guidance": "Not tied to a particular time.",
-    "now": "Now"
+    "now": "Now",
+    "lastVerified": "Reviewed {date}"
   },
   "admin": {
     "title": "Review desk",
@@ -799,7 +800,21 @@
     "resolved": "Handled",
     "deskLink": "Review desk",
     "deskLinkBody": "Enter and review hadiths and Sunnahs before publication.",
-    "statusFilter": "Status"
+    "statusFilter": "Status",
+    "nav_review": "Re-review",
+    "reviewIntro": "Every published item comes back for review after a set time, or right away when a user reports a problem with it. It stays published while it waits. Check the text, source and grading, then reconfirm it, or create a new revision to change it.",
+    "reviewEmpty": "Nothing is waiting for review right now.",
+    "reviewState_scheduled": "Scheduled",
+    "reviewState_due_soon": "Due soon",
+    "reviewState_due": "Due",
+    "reviewState_overdue": "Overdue",
+    "reviewDue": "Review due {date}",
+    "reviewNeverScheduled": "Not scheduled yet",
+    "lastVerified": "Last confirmed {date}",
+    "reviewReports": "{count, plural, one {# open report} other {# open reports}}",
+    "reviewWaiting": "Waiting for review: {count} items, open reports: {reports}",
+    "reconfirmHint": "After checking the text, source and grading, choose “Reconfirm” to start a new cycle. If something is wrong, create a new revision instead.",
+    "action_reconfirm": "Reconfirm"
   },
   "legal": {
     "privacyLink": "Privacy policy",

@@ -16,6 +16,7 @@ export const ContentActionSchema = z.enum([
   'approve',
   'archive',
   'reopen',
+  'reconfirm',
 ]);
 export const GradeSchema = z.enum([
   'sahih',
@@ -185,6 +186,8 @@ export interface PublicSunnah {
   trigger: z.infer<typeof SunnahTriggerSchema>;
   hadiths: PublicHadith[];
   differences: PublicDifference[];
+  /** When a reviewer last confirmed it (the re-review cycle). */
+  lastVerifiedAt: string | null;
 }
 export interface PublicOccasion {
   id: string;
@@ -198,4 +201,6 @@ export interface PublicOccasion {
   schedulable: boolean;
   hadiths: PublicHadith[];
   differences: PublicDifference[];
+  /** When a reviewer last confirmed it (the re-review cycle). */
+  lastVerifiedAt: string | null;
 }

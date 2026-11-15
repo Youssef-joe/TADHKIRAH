@@ -5,6 +5,7 @@ import { AppError } from '../common/http.js';
 import { ENV } from '../config/config.module.js';
 import type { Env } from '../config/env.js';
 import { DB } from '../db/db.module.js';
+import { ReviewDigestService } from '../content/review-digest.service.js';
 import { DispatcherService } from '../reminders/dispatcher.service.js';
 import { PlannerService } from '../reminders/planner.service.js';
 import { purgeExpired } from '../worker/purge.js';
@@ -23,13 +24,22 @@ export class CronController {
     @Inject(DB) private readonly handle: DbHandle,
     private readonly planner: PlannerService,
     private readonly dispatcher: DispatcherService,
+    private readonly reviewDigest: ReviewDigestService,
   ) {}
 
-  /** Every 5 minutes (Cloudflare Worker): plan reminders for users whose horizon is running out. */
+  /**
+   * Every 5 minutes (Cloudflare Worker): plan reminders for users whose horizon
+   * is running out, and remind reviewers about the re-review queue when due.
+   */
   @Get('plan')
   async plan(@Headers('authorization') authorization?: string) {
     this.authorize(authorization);
-    return this.planner.planDue();
+    const planned = await this.planner.planDue();
+    const digests = await this.reviewDigest.remindReviewers().catch((err: Error) => {
+      this.logger.error(`review digest: ${err.message}`);
+      return { sent: 0 };
+    });
+    return { ...planned, reviewDigests: digests.sent };
   }
 
   /** Every minute (Cloudflare Worker): send due reminders. */

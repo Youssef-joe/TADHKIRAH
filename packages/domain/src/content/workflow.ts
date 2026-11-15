@@ -5,6 +5,7 @@
  * draft → awaiting_verification → verified → approved
  *   reject: from awaiting_verification or verified → rejected → (reopen) → draft
  *   archive: from draft, rejected or approved
+ *   reconfirm: approved → approved (periodic re-review; the item stays published)
  */
 export const CONTENT_STATUSES = [
   'draft',
@@ -26,6 +27,7 @@ export const CONTENT_ACTIONS = [
   'approve',
   'archive',
   'reopen',
+  'reconfirm',
 ] as const;
 export type ContentAction = (typeof CONTENT_ACTIONS)[number];
 
@@ -56,6 +58,7 @@ const TRANSITIONS: Record<
   approve: { from: ['verified'], to: 'approved', role: 'publisher' },
   archive: { from: ['draft', 'rejected', 'approved'], to: 'archived', role: 'publisher' },
   reopen: { from: ['rejected'], to: 'draft', role: 'editor' },
+  reconfirm: { from: ['approved'], to: 'approved', role: 'reviewer' },
 };
 
 /** Only drafts are edited; an approved item changes through a new revision. */
@@ -93,14 +96,18 @@ export function checkTransition(i: TransitionInput): TransitionResult {
   if (!i.actorRoles.includes(t.role)) return { ok: false, error: 'forbidden' };
 
   let singleReviewer = false;
-  if (i.action === 'verify' && i.authorId !== null && i.authorId === i.actorId) {
+  // A re-review is a fresh verification, so the two-person rule applies to it too.
+  const verifying = i.action === 'verify' || i.action === 'reconfirm';
+  if (verifying && i.authorId !== null && i.authorId === i.actorId) {
     if (i.twoPersonRule) return { ok: false, error: 'content.reviewer_is_author' };
     singleReviewer = true;
   }
   if (i.action === 'submit' && i.incomplete?.length) {
     return { ok: false, error: 'content.incomplete', details: i.incomplete };
   }
-  if (i.action === 'approve' && i.gateError) return { ok: false, error: i.gateError };
+  // Reconfirming re-checks the publication gate: a grading changed since approval blocks it.
+  if ((i.action === 'approve' || i.action === 'reconfirm') && i.gateError)
+    return { ok: false, error: i.gateError };
   return { ok: true, to: t.to, actorRole: t.role, singleReviewer };
 }
 

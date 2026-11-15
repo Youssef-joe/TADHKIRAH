@@ -21,6 +21,8 @@ import {
   isEditable,
   itemGate,
   itemProblems,
+  nextReviewDue,
+  reviewState,
   type ContentStatus,
   type Grade,
 } from '@tadhkirah/domain';
@@ -184,6 +186,11 @@ export class ContentAdminService {
       differences,
       history,
       problems,
+      openReports: await this.openReportsFor(subject, id),
+      reviewState:
+        row.status === 'approved'
+          ? reviewState((row as { reviewDueAt: Date | null }).reviewDueAt, new Date())
+          : null,
       actions: availableActions(row.status, roles),
       editable: isEditable(row.status),
       twoPersonRule: this.env.CONTENT_TWO_PERSON_RULE,
@@ -483,7 +490,31 @@ export class ContentAdminService {
             .where(eq(c.occasionHadiths.hadithId, old.id));
         }
       }
-      await tx.update(t).set({ status: result.to, updatedBy: userId }).where(eq(t.id, id));
+      // Approving or reconfirming starts the next re-review cycle.
+      const cycle =
+        result.to === 'approved'
+          ? {
+              lastVerifiedAt: new Date(),
+              reviewDueAt: nextReviewDue(new Date(), this.env.CONTENT_REVIEW_INTERVAL_DAYS),
+            }
+          : {};
+      await tx
+        .update(t)
+        .set({ status: result.to, updatedBy: userId, ...cycle })
+        .where(eq(t.id, id));
+      // A reconfirmation answers the open problem reports about this item.
+      if (action === 'reconfirm') {
+        await tx
+          .update(c.issueReports)
+          .set({ resolvedAt: sql`now()`, resolvedBy: userId })
+          .where(
+            and(
+              eq(c.issueReports.subjectType, SUBJECT[type]),
+              eq(c.issueReports.subjectId, id),
+              sql`${c.issueReports.resolvedAt} is null`,
+            ),
+          );
+      }
       await this.record(
         tx,
         SUBJECT[type],
@@ -535,6 +566,8 @@ export class ContentAdminService {
           revision: row.revision + 1,
           supersedesId: id,
           status: 'draft',
+          lastVerifiedAt: null,
+          reviewDueAt: null,
           createdBy: userId,
           updatedBy: userId,
         } as never)
@@ -584,6 +617,68 @@ export class ContentAdminService {
       }
       return { id: newId };
     });
+  }
+
+  // ── Re-review queue (the verification loop) ───────────────────────────────
+  /**
+   * Published items whose review is due, coming up within two weeks, or that
+   * have open problem reports. Reported items first, then by due date.
+   */
+  async reviewQueue() {
+    const soon = 14;
+    const part = (type: ContentType, table: string, label: string) =>
+      sql.raw(`
+        select '${type}' as type, i.id, i.revision, ${label} as label,
+               i.last_verified_at, i.review_due_at,
+               (select count(*) from content.issue_reports r
+                 where r.subject_type = '${SUBJECT[type]}' and r.subject_id = i.id and r.resolved_at is null)::int as open_reports
+        from content.${table} i
+        where i.status = 'approved'`);
+    const hadithLabel = `(select s.name_en || ' ' || i.number from content.hadith_sources s where s.id = i.source_id)`;
+    const rows = await this.db.execute(sql`
+      select * from (
+        ${part('hadiths', 'hadiths', hadithLabel)}
+        union all ${part('sunnahs', 'sunnahs', 'i.title_ar')}
+        union all ${part('occasions', 'supplication_occasions', 'i.title_ar')}
+      ) q
+      where q.open_reports > 0 or q.review_due_at is null
+         or q.review_due_at <= now() + make_interval(days => ${soon})
+      order by q.open_reports desc, q.review_due_at asc nulls first
+      limit 200`);
+    const now = new Date();
+    return (rows.rows as Record<string, unknown>[]).map((r) => {
+      const dueAt = r.review_due_at ? new Date(r.review_due_at as string) : null;
+      return {
+        type: r.type as ContentType,
+        id: String(r.id),
+        revision: Number(r.revision),
+        label: String(r.label ?? ''),
+        lastVerifiedAt: r.last_verified_at
+          ? new Date(r.last_verified_at as string).toISOString()
+          : null,
+        reviewDueAt: dueAt?.toISOString() ?? null,
+        state: reviewState(dueAt, now, { soonDays: soon }),
+        openReports: Number(r.open_reports),
+      };
+    });
+  }
+
+  private openReportsFor(subject: Subject, id: string) {
+    return this.db
+      .select({
+        id: c.issueReports.id,
+        message: c.issueReports.message,
+        createdAt: c.issueReports.createdAt,
+      })
+      .from(c.issueReports)
+      .where(
+        and(
+          eq(c.issueReports.subjectType, subject),
+          eq(c.issueReports.subjectId, id),
+          sql`${c.issueReports.resolvedAt} is null`,
+        ),
+      )
+      .orderBy(desc(c.issueReports.createdAt));
   }
 
   // ── Issue reports ─────────────────────────────────────────────────────────

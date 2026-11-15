@@ -1,8 +1,10 @@
 /**
  * Applies pending migrations, then exits.
  *  - Docker/Coolify: runs as the one-shot `migrate` service before `api` and `worker` start.
- *  - Vercel: runs in the API build, only for production deployments. Previews
- *    share the production database for now, so they must never migrate it.
+ *  - Vercel: runs in the API build. Production migrates its database. Previews
+ *    have their own separate database (tadhkirah-preview-db) and migrate it only
+ *    when ALLOW_PREVIEW_MIGRATIONS=true is set for the Preview environment, so a
+ *    preview can never migrate production by accident if the variables are mixed up.
  * Uses the direct (unpooled) connection when one is available, because
  * migrations shouldn't go through a transaction pooler.
  */
@@ -10,8 +12,10 @@ import { fileURLToPath } from 'node:url';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { createDb } from './index.js';
 
-if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production') {
-  console.log(`skipping migrations for a ${process.env.VERCEL_ENV} deployment`);
+const vercelEnv = process.env.VERCEL_ENV;
+const previewAllowed = vercelEnv === 'preview' && process.env.ALLOW_PREVIEW_MIGRATIONS === 'true';
+if (vercelEnv && vercelEnv !== 'production' && !previewAllowed) {
+  console.log(`skipping migrations for a ${vercelEnv} deployment`);
   process.exit(0);
 }
 

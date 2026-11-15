@@ -2,19 +2,20 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import type { ActivityReport, GoalDto, WeeklyReport, WeeklyReviewDto } from '@tadhkirah/contracts';
 import { formatHijri, type LocalDate } from '@tadhkirah/domain';
 import { api, errorKey } from '@/lib/api';
 import { shift } from '@/lib/use-worship';
 import { useMe } from '../me-context';
-import { Icon, type IconName } from '../ui/icons';
+import { Icon } from '../ui/icons';
 import { Button, Input, Status } from '../ui/primitives';
 import { Reveal } from '../ui/reveal';
 import { numberFormatter, useActivityName } from '../worship/names';
+import { MonthReport } from './month-view';
+import { Tile } from './tiles';
 
-type Fmt = (n: number) => string;
-
-const CELL: Record<ActivityReport['perDay'][number], string> = {
+export const CELL: Record<ActivityReport['perDay'][number], string> = {
   logged: 'bg-primary',
   partial: 'bg-primary/40',
   not_logged: 'border border-border',
@@ -22,48 +23,6 @@ const CELL: Record<ActivityReport['perDay'][number], string> = {
   not_scheduled: 'bg-transparent',
   future: 'border border-dashed border-border/60',
 };
-
-/** Counts up from 0 once on mount (instant under reduced motion). */
-function CountUp({ value, fmt }: { value: number; fmt: Fmt }) {
-  const [shown, setShown] = useState(0);
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return setShown(value);
-    const start = performance.now();
-    let raf = 0;
-    const step = (now: number) => {
-      const k = Math.min(1, (now - start) / 900);
-      setShown(value * (1 - Math.pow(1 - k, 3)));
-      if (k < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [value]);
-  return <>{fmt(Number.isInteger(value) ? Math.round(shown) : Math.round(shown * 10) / 10)}</>;
-}
-
-function Tile({
-  icon,
-  label,
-  value,
-  fmt,
-  tone,
-}: {
-  icon: IconName;
-  label: string;
-  value: number;
-  fmt: Fmt;
-  tone: string;
-}) {
-  return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-border bg-surface p-4">
-      <Icon name={icon} className={tone} />
-      <p className="text-3xl font-semibold tabular-nums">
-        <CountUp value={value} fmt={fmt} />
-      </p>
-      <p className="text-sm text-muted">{label}</p>
-    </div>
-  );
-}
 
 function Strip({ days, labels }: { days: ActivityReport['perDay']; labels: string[] }) {
   const tl = useTranslations('worship.legend');
@@ -271,8 +230,34 @@ function Goals({ goals, onChange }: { goals: GoalDto[]; onChange: () => void }) 
   );
 }
 
-/** Weekly report (M7): behavioural counts, gentle notes, review and goals. No scores, ever. */
+/** Reports: a week or a month of behavioural counts (M7, REP-7). */
 export function ReportsView() {
+  const t = useTranslations('reports');
+  const initial = useSearchParams().get('view');
+  const [view, setView] = useState<'week' | 'month'>(initial === 'month' ? 'month' : 'week');
+  return (
+    <div className="flex flex-col gap-6">
+      <div role="tablist" className="flex gap-1 rounded-xl border border-border bg-surface p-1">
+        {(['week', 'month'] as const).map((k) => (
+          <button
+            key={k}
+            role="tab"
+            type="button"
+            aria-selected={view === k}
+            onClick={() => setView(k)}
+            className="flex-1 rounded-lg px-4 py-2 text-sm font-medium text-muted transition-colors aria-selected:bg-primary aria-selected:text-white"
+          >
+            {t(`tabs.${k}`)}
+          </button>
+        ))}
+      </div>
+      <div role="tabpanel">{view === 'week' ? <WeekReport /> : <MonthReport />}</div>
+    </div>
+  );
+}
+
+/** Weekly report (M7): behavioural counts, gentle notes, review and goals. No scores, ever. */
+function WeekReport() {
   const t = useTranslations('reports');
   const tw = useTranslations('worship');
   const locale = useLocale() as 'ar' | 'en';

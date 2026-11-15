@@ -11,6 +11,7 @@ const APP = [
   '/app/sunnah',
   '/app/times',
   '/app/reports',
+  '/app/reports?view=month',
   '/app/inbox',
   '/app/settings',
 ];

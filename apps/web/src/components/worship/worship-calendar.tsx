@@ -10,7 +10,7 @@ import { Icon } from '../ui/icons';
 import { Select } from '../ui/primitives';
 import { numberFormatter, useActivityName } from './names';
 
-const CELL: Record<DayState, string> = {
+export const CELL: Record<DayState, string> = {
   logged: 'bg-primary text-white shadow-sm',
   partial: 'bg-primary/35 text-text',
   not_logged: 'border border-border text-muted',

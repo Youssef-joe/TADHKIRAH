@@ -14,10 +14,12 @@ import {
 import {
   CreateGoalSchema,
   LocalDateSchema,
+  MonthlyReportQuerySchema,
   SaveWeeklyReviewSchema,
   UpdateGoalSchema,
   WeeklyReportQuerySchema,
   type GoalDto,
+  type MonthlyReport,
   type UpdateGoal,
   type WeeklyReport,
   type WeeklyReviewDto,
@@ -31,7 +33,7 @@ import { ReportsService } from './reports.service.js';
 const DatePipe = new ZodPipe(LocalDateSchema);
 const GoalsQuery = z.object({ status: z.enum(['active', 'done', 'let_go']).optional() });
 
-/** Weekly reports, weekly reviews and goals. Reviews and goals contain decrypted private text: never cached. */
+/** Weekly and monthly reports, weekly reviews and goals. Reviews and goals contain decrypted private text: never cached. */
 @Controller()
 @UseGuards(SessionGuard)
 export class ReportsController {
@@ -44,6 +46,15 @@ export class ReportsController {
     @Query(new ZodPipe(WeeklyReportQuerySchema)) q: z.output<typeof WeeklyReportQuerySchema>,
   ): Promise<WeeklyReport> {
     return this.reports.weekly(auth.userId, q.weekStart);
+  }
+
+  @Get('reports/monthly')
+  @Header('Cache-Control', 'no-store')
+  monthly(
+    @CurrentAuth() auth: AuthContext,
+    @Query(new ZodPipe(MonthlyReportQuerySchema)) q: z.output<typeof MonthlyReportQuerySchema>,
+  ): Promise<MonthlyReport> {
+    return this.reports.monthly(auth.userId, q.calendar, q.month);
   }
 
   @Get('weekly-reviews/:weekStart')

@@ -449,6 +449,10 @@
   },
   "reports": {
     "title": "Reports",
+    "tabs": {
+      "week": "Week",
+      "month": "Month"
+    },
     "weekTitle": "Your week at a glance",
     "thisWeek": "This week",
     "prevWeek": "Previous week",
@@ -490,7 +494,24 @@
     },
     "goalFromReview": "From your weekly review",
     "footer": "Reports describe your habits — never your faith.",
-    "noActivities": "Enable activities in My Worship to see them here."
+    "noActivities": "Enable activities in My Worship to see them here.",
+    "monthTitle": "Your month at a glance",
+    "thisMonth": "This month",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "calendarLabel": "Calendar",
+    "calendar": {
+      "hijri": "Hijri",
+      "gregorian": "Gregorian"
+    },
+    "monthActivitiesTitle": "Your worship this month",
+    "pickActivity": "Choose an activity to see its days on the calendar.",
+    "calendarFor": "Days: {name}",
+    "reflectionRow": "Daily reflection",
+    "monthAttentionBody": "Not a judgement — just a gentle invitation for next month.",
+    "monthAttentionNone": "Mā shāʾ Allāh — nothing needs attention this month.",
+    "monthGoalsTitle": "Your goals this month",
+    "reviewsSaved": "{count, plural, =0 {No weekly reviews saved this month} one {1 weekly review saved this month} other {{n} weekly reviews saved this month}}"
   },
   "reminders": {
     "title": "Reminders",

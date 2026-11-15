@@ -39,11 +39,9 @@ export const GoalSchema = z.object({
 });
 export type GoalDto = z.infer<typeof GoalSchema>;
 
-export const WeeklyReportSchema = z.object({
-  weekStart: LocalDateSchema,
-  weekEnd: LocalDateSchema,
+/** What weekly and monthly reports share (REP-7: "same structure"). */
+const PeriodFields = {
   today: LocalDateSchema,
-  isCurrentWeek: z.boolean(),
   days: z.array(LocalDateSchema),
   excusedDays: z.number().int(),
   activities: z.array(ActivityReportSchema),
@@ -60,6 +58,13 @@ export const WeeklyReportSchema = z.object({
     perDay: z.array(z.boolean()),
   }),
   goals: z.array(GoalSchema),
+};
+
+export const WeeklyReportSchema = z.object({
+  weekStart: LocalDateSchema,
+  weekEnd: LocalDateSchema,
+  isCurrentWeek: z.boolean(),
+  ...PeriodFields,
   reviewSaved: z.boolean(),
 });
 export type WeeklyReport = z.infer<typeof WeeklyReportSchema>;
@@ -96,3 +101,24 @@ export const UpdateGoalSchema = z
 export type UpdateGoal = z.infer<typeof UpdateGoalSchema>;
 
 export const WeeklyReportQuerySchema = z.object({ weekStart: LocalDateSchema.optional() });
+
+export const ReportCalendarSchema = z.enum(['gregorian', 'hijri']);
+/** `YYYY-MM` in the report's own calendar: `1448-09` is Ramadan 1448. */
+export const MonthKeySchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/);
+
+export const MonthlyReportSchema = z.object({
+  calendar: ReportCalendarSchema,
+  month: MonthKeySchema,
+  start: LocalDateSchema,
+  end: LocalDateSchema,
+  isCurrentMonth: z.boolean(),
+  ...PeriodFields,
+  /** Weekly reviews saved for weeks starting in this month (a count; the text stays private). */
+  reviewsSaved: z.number().int(),
+});
+export type MonthlyReport = z.infer<typeof MonthlyReportSchema>;
+
+export const MonthlyReportQuerySchema = z.object({
+  month: MonthKeySchema.optional(),
+  calendar: ReportCalendarSchema.default('gregorian'),
+});

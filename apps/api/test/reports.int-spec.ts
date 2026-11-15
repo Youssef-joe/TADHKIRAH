@@ -1,7 +1,7 @@
 import type { INestApplication } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
-import { addDays } from '@tadhkirah/domain';
+import { addDays, monthDates, monthOf, shiftMonth, toHijri } from '@tadhkirah/domain';
 import type { MemoryMailer } from '../src/auth/mailer.js';
 import { signIn, startApp } from './helpers.js';
 
@@ -179,5 +179,89 @@ describe('weekly report, review and goals (M7)', () => {
       .set('Cookie', cookie)
       .expect(422);
     expect(res.body.code).toBe('reports.future_week');
+  });
+
+  describe('monthly report (REP-7)', () => {
+    /** Logs Fajr on up to three editable days of `month`, returning the dates. */
+    async function logIn(
+      ctx: Awaited<ReturnType<typeof setup>>,
+      month: string,
+      calendar: 'gregorian' | 'hijri',
+    ) {
+      const earliest = addDays(ctx.today, -29);
+      const dates = monthDates(month, calendar)
+        .filter((d) => d >= earliest && d <= ctx.today)
+        .slice(0, 3);
+      for (const d of dates) await log(ctx.cookie, d, ctx.id('fajr'), { prayerStatus: 'on_time' });
+      return dates;
+    }
+
+    for (const calendar of ['gregorian', 'hijri'] as const) {
+      it(`counts a whole ${calendar} month, with one calendar cell per day`, async () => {
+        const ctx = await setup();
+        const month = monthOf(addDays(ctx.today, -15), calendar);
+        const dates = await logIn(ctx, month, calendar);
+        const res = await http()
+          .get(`/v1/reports/monthly?calendar=${calendar}&month=${month}`)
+          .set('Cookie', ctx.cookie)
+          .expect(200);
+        const days = monthDates(month, calendar);
+        expect(res.body).toMatchObject({ calendar, month, start: days[0], end: days.at(-1) });
+        expect(res.body.days).toEqual(days);
+        const fajr = res.body.activities.find(
+          (a: { activityId: string }) => a.activityId === ctx.id('fajr'),
+        );
+        expect(fajr.logged).toBe(dates.length);
+        expect(fajr.statusBreakdown.on_time).toBe(dates.length);
+        expect(fajr.perDay).toHaveLength(days.length);
+        expect(res.body.reflections.perDay).toHaveLength(days.length);
+        if (calendar === 'hijri') {
+          const [y, m] = month.split('-').map(Number);
+          for (const d of [days[0]!, days.at(-1)!])
+            expect(toHijri(d)).toMatchObject({ year: y, month: m });
+        }
+      });
+    }
+
+    it('defaults to the current month and never returns a score (REP-8)', async () => {
+      const { cookie, today } = await setup();
+      const res = await http()
+        .get('/v1/reports/monthly?calendar=hijri')
+        .set('Cookie', cookie)
+        .expect(200);
+      expect(res.body.month).toBe(monthOf(today, 'hijri'));
+      expect(res.body.isCurrentMonth).toBe(true);
+      expect(res.body.days).toContain(today);
+      const keys = JSON.stringify(res.body).match(/"([a-zA-Z_]+)":/g) ?? [];
+      expect(keys.filter((k) => /score|percent|rank|grade|level/i.test(k))).toEqual([]);
+    });
+
+    it('counts weekly reviews saved in the month, without their text', async () => {
+      const { cookie, lastWeek } = await setup();
+      await http()
+        .put(`/v1/weekly-reviews/${lastWeek}`)
+        .set('Cookie', cookie)
+        .set(CSRF)
+        .send({ improved: 'private words' })
+        .expect(200);
+      const res = await http()
+        .get(`/v1/reports/monthly?month=${monthOf(lastWeek, 'gregorian')}`)
+        .set('Cookie', cookie)
+        .expect(200);
+      expect(res.body.reviewsSaved).toBe(1);
+      expect(JSON.stringify(res.body)).not.toContain('private words');
+    });
+
+    it('refuses months that have not started, and malformed months', async () => {
+      const { cookie, today } = await setup();
+      const next = shiftMonth(monthOf(today, 'gregorian'), 1);
+      const res = await http()
+        .get(`/v1/reports/monthly?month=${next}`)
+        .set('Cookie', cookie)
+        .expect(422);
+      expect(res.body.code).toBe('reports.future_month');
+      await http().get('/v1/reports/monthly?month=2026-13').set('Cookie', cookie).expect(400);
+      await http().get('/v1/reports/monthly?calendar=julian').set('Cookie', cookie).expect(400);
+    });
   });
 });

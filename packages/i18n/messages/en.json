@@ -697,7 +697,7 @@
     "policyBanner": "Nothing is published until a reviewer other than its author has verified it and a publisher has approved it. Da'if and mawdu' narrations are never published.",
     "singleReviewerOn": "The two-person rule is off: every self-verification is recorded and flagged for re-review later.",
     "importTitle": "Load the candidate references",
-    "importBody": "Twenty references an AI gathered as a research starting point. They are added as drafts without any text; an editor enters the text from the primary source, and each goes through the full review.",
+    "importBody": "Twenty hadiths and ten Sunnahs and supplication times an AI gathered as a research starting point. They are added as drafts: the hadith texts are copied verbatim from an open dataset, with no grades and no descriptions. A reviewer checks each text against the primary source, adds the grading and the description, and each goes through the full review.",
     "importButton": "Load them as drafts",
     "imported": "Added {created}, skipped {skipped}.",
     "new": "New",

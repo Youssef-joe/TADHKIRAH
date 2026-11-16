@@ -31,7 +31,8 @@ import { AppError } from '../common/http.js';
 import { ENV } from '../config/config.module.js';
 import type { Env } from '../config/env.js';
 import { DB } from '../db/db.module.js';
-import { CANDIDATE_LEADS } from './candidates.js';
+import { CANDIDATE_TEXTS } from './candidate-texts.js';
+import { CANDIDATE_LEADS, CANDIDATE_OCCASIONS, CANDIDATE_SUNNAHS } from './candidates.js';
 import { RolesService } from './roles.service.js';
 
 const c = schema;
@@ -701,15 +702,23 @@ export class ContentAdminService {
    * source, number, narrator and the reviewer notes only. No text: a person enters
    * it from the primary source. Safe to run again (existing source+number are skipped).
    */
+  /**
+   * Loads the research leads as drafts: hadiths with their Arabic text copied verbatim from
+   * an open dataset (no grading), and Sunnahs and occasions linking them (no description).
+   * Idempotent: existing rows are skipped; an earlier text-less lead draft gets its text.
+   */
   async importCandidates(userId: string): Promise<{ created: number; skipped: number }> {
     return this.db.transaction(async (tx) => {
       const sources = new Map((await tx.select().from(c.hadithSources)).map((s) => [s.key, s]));
       const narrators = new Map((await tx.select().from(c.narrators)).map((n) => [n.nameEn, n]));
+      const hadithIds = new Map<string, string>();
       let created = 0;
       let skipped = 0;
       for (const lead of CANDIDATE_LEADS) {
         const source = sources.get(lead.source);
         if (!source) continue;
+        const ref = `${lead.source}:${lead.number}`;
+        const text = CANDIDATE_TEXTS[ref];
         let narrator = narrators.get(lead.narrator.en);
         if (!narrator) {
           [narrator] = await tx
@@ -718,21 +727,104 @@ export class ContentAdminService {
             .returning();
           narrators.set(lead.narrator.en, narrator!);
         }
+        const notes = [
+          'AI-gathered lead, UNVERIFIED (docs/07-content-candidates.md).',
+          lead.note,
+          text &&
+            `Arabic text copied verbatim from the open hadith-api dataset (${text.datasetRef}); compare it with the primary source.`,
+          text?.datasetGrades.length &&
+            `Dataset gradings (unverified): ${text.datasetGrades.join('; ')}.`,
+          'Confirm the number, narrator, text and link, then add the grading yourself.',
+        ]
+          .filter(Boolean)
+          .join(' ');
         const [row] = await tx
           .insert(c.hadiths)
           .values({
             sourceId: source.id,
             number: lead.number,
             narratorId: narrator!.id,
+            textAr: text?.textAr ?? null,
             sourceUrl: `${source.baseUrl}:${lead.number}`,
-            editorNotes: `AI-gathered lead, UNVERIFIED (docs/07-content-candidates.md). ${lead.note} Enter the text from the primary source and confirm the number, narrator, link and grading.`,
+            editorNotes: notes,
             createdBy: userId,
             updatedBy: userId,
           })
           .onConflictDoNothing()
           .returning({ id: c.hadiths.id });
-        if (row) created++;
-        else skipped++;
+        if (row) {
+          created++;
+          hadithIds.set(ref, row.id);
+          continue;
+        }
+        skipped++;
+        const [existing] = await tx
+          .select({ id: c.hadiths.id, textAr: c.hadiths.textAr, status: c.hadiths.status })
+          .from(c.hadiths)
+          .where(and(eq(c.hadiths.sourceId, source.id), eq(c.hadiths.number, lead.number)))
+          .orderBy(desc(c.hadiths.revision))
+          .limit(1);
+        if (!existing) continue;
+        hadithIds.set(ref, existing.id);
+        // Drafts from the earlier text-less import get the text; nobody's edits are overwritten.
+        if (existing.status === 'draft' && !existing.textAr && text)
+          await tx
+            .update(c.hadiths)
+            .set({ textAr: text.textAr, editorNotes: notes, updatedBy: userId })
+            .where(eq(c.hadiths.id, existing.id));
+      }
+
+      const groups = [
+        ...CANDIDATE_SUNNAHS.map((s) => ({ type: 'sunnahs' as const, item: s })),
+        ...CANDIDATE_OCCASIONS.map((o) => ({ type: 'occasions' as const, item: o })),
+      ];
+      for (const { type, item } of groups) {
+        const table = type === 'sunnahs' ? c.sunnahs : c.supplicationOccasions;
+        const [taken] = await tx
+          .select({ id: table.id })
+          .from(table)
+          .where(eq(table.slug, item.slug))
+          .limit(1);
+        if (taken) {
+          skipped++;
+          continue;
+        }
+        const base = {
+          slug: item.slug,
+          titleAr: item.titleAr,
+          titleEn: item.titleEn,
+          createdBy: userId,
+          updatedBy: userId,
+        };
+        const links = item.hadiths.flatMap((ref) => {
+          const hadithId = hadithIds.get(ref);
+          return hadithId ? [hadithId] : [];
+        });
+        if ('trigger' in item) {
+          const [row] = await tx
+            .insert(c.sunnahs)
+            .values({ ...base, trigger: item.trigger })
+            .returning({ id: c.sunnahs.id });
+          if (links.length)
+            await tx
+              .insert(c.sunnahHadiths)
+              .values(links.map((hadithId) => ({ sunnahId: row!.id, hadithId })));
+        } else {
+          const [row] = await tx
+            .insert(c.supplicationOccasions)
+            .values({
+              ...base,
+              window: item.window,
+              evidenceType: item.evidenceType,
+              schedulable: item.schedulable,
+            })
+            .returning({ id: c.supplicationOccasions.id });
+          if (links.length)
+            await tx
+              .insert(c.occasionHadiths)
+              .values(links.map((hadithId) => ({ occasionId: row!.id, hadithId })));
+        }
+        created++;
       }
       return { created, skipped };
     });

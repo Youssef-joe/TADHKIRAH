@@ -97,22 +97,38 @@ describe('verified content: workflow, publication gate, roles (Phase 2)', () => 
     expect(rows.map((r) => r.action)).toEqual(['grant']);
   });
 
-  it('imports the AI research leads as drafts only, without any hadith text, idempotently', async () => {
+  it('imports the AI research leads as drafts only: verbatim texts, no grades, no descriptions', async () => {
     const first = (await as(owner).post('/admin/import-candidates').expect(201)).body;
-    expect(first.created).toBe(20);
+    expect(first.created).toBe(30); // 20 hadiths, 5 Sunnahs, 5 occasions
     expect((await as(owner).post('/admin/import-candidates').expect(201)).body).toEqual({
       created: 0,
-      skipped: 20,
+      skipped: 30,
     });
     const { rows } = await h.pool.query(
-      `select status, text_ar, editor_notes from content.hadiths where editor_notes like 'AI-gathered%'`,
+      `select h.id, h.status, h.text_ar, h.editor_notes,
+              (select count(*)::int from content.hadith_authentications a where a.hadith_id = h.id) grades
+         from content.hadiths h where editor_notes like 'AI-gathered%'`,
     );
     expect(rows).toHaveLength(20);
-    expect(
-      rows.every(
-        (r) => r.status === 'draft' && r.text_ar === null && r.editor_notes.includes('UNVERIFIED'),
-      ),
-    ).toBe(true);
+    for (const r of rows) {
+      expect(r.status).toBe('draft');
+      expect(r.text_ar).toMatch(/[\u0600-\u06FF]/);
+      expect(r.editor_notes).toContain('UNVERIFIED');
+      expect(r.grades).toBe(0); // AI never grades
+    }
+    const sunnahs = await h.pool.query(
+      `select s.status, s.description_ar, count(l.hadith_id)::int links
+         from content.sunnahs s join content.sunnah_hadiths l on l.sunnah_id = s.id
+        where s.slug = 'siwak-on-rising-at-night' group by s.id`,
+    );
+    expect(sunnahs.rows).toEqual([{ status: 'draft', description_ar: '', links: 2 }]);
+    const occasion = await h.pool.query(
+      `select schedulable, evidence_type from content.supplication_occasions where slug = 'in-sujud'`,
+    );
+    expect(occasion.rows).toEqual([{ schedulable: false, evidence_type: 'explicit_text' }]);
+    // Nothing is public until a person completes and approves it.
+    const pub = (await http().get('/v1/content/sunnahs').expect(200)).body as { slug: string }[];
+    expect(pub.find((s) => s.slug === 'siwak-on-rising-at-night')).toBeUndefined();
   });
 
   it('runs the hadith workflow with the two-person rule', async () => {
